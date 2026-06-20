@@ -1,0 +1,78 @@
+---
+import type { Hero14Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero14Props;
+const { badgeText, badgeAvatars, title, primaryText, primaryUrl, phoneLabel, phone, trustItems, image, imageAlt, accent = "#f29022" } = node;
+const avatarList = Array.isArray(badgeAvatars) ? badgeAvatars.filter((a) => a?.url).slice(0, 4) : [];
+const trustList = Array.isArray(trustItems) ? trustItems.filter((t) => t?.text) : [];
+const secNode = { ...node, width: (node as any).width || "full" };
+const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : "#";
+---
+
+<PeakSection node={secNode}>
+	<div class="ht">
+		{image && <img class="ht__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
+		<div class="ht__overlay"></div>
+		<div class="ht__inner">
+			<div class="ht__top">
+				{(badgeText || avatarList.length > 0) && (
+					<div class="ht__badge">
+						{avatarList.length > 0 && (
+							<span class="ht__badge-avatars">{avatarList.map((a) => <img src={a.url} alt="" />)}</span>
+						)}
+						{badgeText && <span>{badgeText}</span>}
+					</div>
+				)}
+				{title && <h1 class="ht__title">{title}</h1>}
+			</div>
+
+			<div class="ht__bottom">
+				<div class="ht__cta-row">
+					{primaryText && <a class="ht__btn" href={primaryUrl} style={`background:${accent}`}>{primaryText} <span class="ht__btn-icon">›</span></a>}
+					{phone && (
+						<div class="ht__phone">
+							{phoneLabel && <span class="ht__phone-label">{phoneLabel}</span>}
+							<a class="ht__phone-num" href={telHref}>{phone}</a>
+						</div>
+					)}
+				</div>
+				{trustList.length > 0 && (
+					<div class="ht__trustbar">
+						{trustList.map((t) => (
+							<span class="ht__trust"><span class="ht__trust-icon">{t.icon}</span> {t.text}</span>
+						))}
+					</div>
+				)}
+			</div>
+		</div>
+	</div>
+</PeakSection>
+
+<style>
+	.ht { position: relative; min-height: clamp(560px, 94vh, 960px); overflow: hidden; color: #fff; }
+	.ht__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+	.ht__overlay { position: absolute; inset: 0; background: linear-gradient(120deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0.05) 70%), linear-gradient(0deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 35%); }
+	.ht__inner {
+		position: relative; max-width: var(--peak-wide, 1180px); margin: 0 auto; min-height: inherit;
+		padding: clamp(2.5rem, 5vw, 4rem) var(--peak-gutter, 1.5rem);
+		display: flex; flex-direction: column; justify-content: space-between; gap: 2.5rem;
+	}
+	.ht__top { margin-top: clamp(3rem, 12vh, 8rem); }
+	.ht__badge { display: inline-flex; align-items: center; gap: 0.75rem; background: rgba(20,20,20,0.5); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); border-radius: 999px; padding: 0.4rem 1rem 0.4rem 0.4rem; font-size: 0.95rem; margin-bottom: 1.75rem; }
+	.ht__badge-avatars { display: flex; }
+	.ht__badge-avatars img { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.6); object-fit: cover; margin-left: -8px; }
+	.ht__badge-avatars img:first-child { margin-left: 0; }
+	.ht__title { font-size: calc(clamp(2.75rem, 6vw, 5rem) * var(--peak-font-scale, 1)); font-weight: 700; line-height: 1.04; margin: 0; max-width: 16ch; }
+
+	.ht__bottom { display: flex; flex-direction: column; gap: 2rem; }
+	.ht__cta-row { display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; }
+	.ht__btn { display: inline-flex; align-items: center; gap: 0.6rem; color: #fff; padding: 1rem 1.5rem; border-radius: 999px; font-weight: 700; text-decoration: none; }
+	.ht__btn-icon { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; }
+	.ht__phone-label { display: block; font-size: 0.9rem; opacity: 0.9; }
+	.ht__phone-num { font-size: calc(1.75rem * var(--peak-font-scale, 1)); font-weight: 700; color: #fff; text-decoration: none; }
+	.ht__trustbar { display: flex; flex-wrap: wrap; gap: clamp(1.5rem, 4vw, 3rem); padding-top: 1.25rem; border-top: 1px solid rgba(255,255,255,0.2); }
+	.ht__trust { display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600; }
+
+	@media (max-width: 700px) { .ht__cta-row { flex-direction: column; align-items: flex-start; } }
+</style>

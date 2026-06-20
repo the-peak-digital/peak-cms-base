@@ -1,0 +1,75 @@
+---
+import type { Hero7Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero7Props;
+const { title, subtitle, tagline, buttonText, buttonUrl, proofLabel, reviews, stats, sideLeft, sideRight } = node;
+const reviewList = Array.isArray(reviews) ? reviews.filter((r) => r?.logo) : [];
+const statList = Array.isArray(stats) ? stats.filter((s) => s?.value || s?.label) : [];
+const stars = (n?: string) => "★".repeat(Math.max(0, Math.min(5, Number(n ?? 5) || 0)));
+const secNode = { ...node, width: (node as any).width || "full" };
+---
+
+<PeakSection node={secNode} background="linear-gradient(90deg, #a9e7d6 0%, #f5fcf9 32%, #f5fcf9 68%, #a9e7d6 100%)">
+	<div class="h7">
+		{sideLeft && <img class="h7__side h7__side--l" src={sideLeft} alt="" aria-hidden="true" />}
+		{sideRight && <img class="h7__side h7__side--r" src={sideRight} alt="" aria-hidden="true" />}
+		<div class="h7__inner">
+			{title && <h1 class="h7__title">{title}</h1>}
+			{subtitle && <p class="h7__subtitle">{subtitle}</p>}
+			{tagline && <p class="h7__tagline">{tagline}</p>}
+			{buttonText && <a class="h7__btn" href={buttonUrl}>{buttonText}</a>}
+
+			{proofLabel && <p class="h7__proof-label">{proofLabel}</p>}
+			{reviewList.length > 0 && (
+				<div class="h7__reviews">
+					{reviewList.map((r) => (
+						<div class="h7__review">
+							<img class="h7__review-logo" src={r.logo} alt="" loading="lazy" />
+							<span class="h7__review-stars">{stars(r.stars)}</span>
+						</div>
+					))}
+				</div>
+			)}
+			{statList.length > 0 && (
+				<div class="h7__stats">
+					{statList.map((s) => (
+						<div class="h7__stat">
+							<span class="h7__stat-value">{s.value}</span>
+							<span class="h7__stat-label">{s.label}</span>
+						</div>
+					))}
+				</div>
+			)}
+		</div>
+	</div>
+</PeakSection>
+
+<style>
+	.h7 { position: relative; }
+	.h7__side { position: absolute; top: 8%; width: clamp(120px, 14vw, 240px); height: auto; opacity: 0.95; pointer-events: none; }
+	.h7__side--l { left: 0; }
+	.h7__side--r { right: 0; top: 14%; }
+	.h7__inner {
+		position: relative; max-width: 880px; margin: 0 auto; text-align: center;
+		padding-block: clamp(3rem, 6vw, 5rem);
+		color: #2b2f38;
+	}
+	.h7__title { font-size: calc(clamp(2.5rem, 5vw, 4rem) * var(--peak-font-scale, 1)); font-weight: 800; margin: 0 0 1rem; }
+	.h7__subtitle { font-size: calc(clamp(1.4rem, 3vw, 2rem) * var(--peak-font-scale, 1)); font-weight: 700; line-height: 1.2; margin: 0 0 1.5rem; }
+	.h7__tagline { text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; font-size: calc(0.95rem * var(--peak-font-scale, 1)); margin: 0 0 2rem; }
+	.h7__btn {
+		display: inline-block; background: #ff5a1f; color: #2b2f38; font-weight: 800;
+		padding: 1rem 2rem; border-radius: 999px; text-decoration: none;
+		box-shadow: 0 0 0 8px rgba(255,90,31,0.18);
+	}
+	.h7__proof-label { font-weight: 800; margin: 3.5rem 0 1.5rem; }
+	.h7__reviews { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(1.5rem, 5vw, 4rem); margin-bottom: 2.5rem; }
+	.h7__review { display: flex; align-items: center; gap: 0.6rem; }
+	.h7__review-logo { height: 28px; width: auto; object-fit: contain; }
+	.h7__review-stars { color: #ff5a1f; letter-spacing: 2px; }
+	.h7__stats { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(1.5rem, 4vw, 3rem); }
+	.h7__stat { display: flex; align-items: center; gap: 0.6rem; text-align: left; }
+	.h7__stat-value { font-size: calc(2.25rem * var(--peak-font-scale, 1)); font-weight: 700; }
+	.h7__stat-label { font-size: 0.95rem; line-height: 1.2; max-width: 9rem; }
+</style>

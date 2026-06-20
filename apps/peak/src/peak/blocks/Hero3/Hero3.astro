@@ -1,0 +1,135 @@
+---
+import type { Hero3Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero3Props;
+const {
+	titlePart1, emphasis, titlePart2, body,
+	primaryText, primaryUrl, secondaryText, secondaryUrl,
+	image, imageAlt,
+	nextLabel, nextName, nextTime,
+	patientsLabel, patientsValue, patientsAvatars,
+	recoveryLabel, recoveryValue, recoveryNote,
+	badges,
+} = node;
+
+const avatars = Array.isArray(patientsAvatars) ? patientsAvatars.filter((a) => a?.url).slice(0, 4) : [];
+const badgeList = Array.isArray(badges) ? badges.filter((b) => b?.label) : [];
+---
+
+<PeakSection node={node} background="radial-gradient(120% 120% at 80% 10%, #0e3a4a 0%, #0a1f2e 55%, #061521 100%)">
+	<div class="h3">
+		<div class="h3__left">
+			<h1 class="h3__title">{titlePart1} <em class="h3__em">{emphasis}</em> {titlePart2}</h1>
+			{body && <p class="h3__body">{body}</p>}
+			<div class="h3__actions">
+				{primaryText && <a class="h3__btn h3__btn--primary" href={primaryUrl}>{primaryText}</a>}
+				{secondaryText && (
+					<a class="h3__btn h3__btn--ghost" href={secondaryUrl}><span class="h3__play">▶</span>{secondaryText}</a>
+				)}
+			</div>
+			{badgeList.length > 0 && (
+				<div class="h3__badges">
+					{badgeList.map((b) => <span class="h3__badge">◇ {b.label}</span>)}
+				</div>
+			)}
+		</div>
+
+		<div class="h3__right">
+			{image && <img class="h3__photo" src={image} alt={imageAlt ?? ""} loading="eager" />}
+			{(nextName || nextLabel) && (
+				<div class="h3__card h3__card--next">
+					{nextLabel && <span class="h3__card-label">{nextLabel}</span>}
+					{nextName && <span class="h3__card-name"><span class="h3__dot"></span>{nextName}</span>}
+					{nextTime && <span class="h3__card-sub">{nextTime}</span>}
+				</div>
+			)}
+			{(patientsValue || patientsLabel) && (
+				<div class="h3__card h3__card--patients">
+					{patientsLabel && <span class="h3__card-label">{patientsLabel}</span>}
+					{patientsValue && <span class="h3__card-big">{patientsValue}</span>}
+					{avatars.length > 0 && (
+						<div class="h3__avatars">
+							{avatars.map((a) => <img src={a.url} alt="" />)}
+							<span class="h3__avatars-more">+</span>
+						</div>
+					)}
+				</div>
+			)}
+			{(recoveryValue || recoveryLabel) && (
+				<div class="h3__card h3__card--recovery">
+					{recoveryLabel && <span class="h3__card-label">{recoveryLabel}</span>}
+					{recoveryValue && <span class="h3__card-big h3__card-big--cyan">{recoveryValue}</span>}
+					{recoveryNote && <span class="h3__card-sub">{recoveryNote}</span>}
+				</div>
+			)}
+		</div>
+	</div>
+</PeakSection>
+
+<style>
+	.h3 {
+		--h3-cyan: #2dd4ea;
+		color: #eaf6fb;
+		display: grid;
+		grid-template-columns: 1.05fr 1fr;
+		gap: 3rem;
+		align-items: center;
+		padding-block: clamp(2.5rem, 5vw, 4.5rem);
+	}
+	/* Left */
+	.h3__title {
+		font-family: Georgia, "Times New Roman", serif;
+		font-size: calc(clamp(2.5rem, 5vw, 4.25rem) * var(--peak-font-scale, 1));
+		line-height: 1.04;
+		font-weight: 600;
+		margin: 0 0 1.5rem;
+		color: #fff;
+	}
+	.h3__em { font-style: italic; color: var(--h3-cyan); }
+	.h3__body {
+		font-size: calc(1.05rem * var(--peak-font-scale, 1));
+		line-height: 1.7; color: #9fc3d2; max-width: 30rem; margin: 0 0 2.25rem;
+	}
+	.h3__actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+	.h3__btn { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.95rem 1.75rem; border-radius: 999px; font-weight: 600; text-decoration: none; }
+	.h3__btn--primary { background: linear-gradient(90deg, #38bdf8, #22d3ee); color: #06202c; }
+	.h3__btn--ghost { border: 1px solid rgba(255,255,255,0.25); color: #eaf6fb; }
+	.h3__play { font-size: 0.7rem; opacity: 0.8; }
+	.h3__badges { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+	.h3__badge { font-size: 0.78rem; color: #9fc3d2; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 0.4rem 0.7rem; }
+
+	/* Right */
+	.h3__right { position: relative; }
+	.h3__photo { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 22px; display: block; }
+	.h3__card {
+		position: absolute;
+		background: rgba(8, 26, 38, 0.72);
+		backdrop-filter: blur(14px);
+		border: 1px solid rgba(255,255,255,0.12);
+		border-radius: 16px;
+		padding: 0.9rem 1.1rem;
+		display: flex; flex-direction: column; gap: 0.25rem;
+		min-width: 150px;
+	}
+	.h3__card--next { top: 12%; right: -6%; }
+	.h3__card--patients { bottom: 14%; left: -8%; }
+	.h3__card--recovery { bottom: 4%; right: -6%; }
+	.h3__card-label { font-size: 0.68rem; letter-spacing: 0.08em; color: #7fa6b8; }
+	.h3__card-name { display: flex; align-items: center; gap: 0.4rem; font-weight: 600; color: #fff; }
+	.h3__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--h3-cyan); display: inline-block; }
+	.h3__card-sub { font-size: 0.75rem; color: #9fc3d2; }
+	.h3__card-big { font-size: 1.5rem; font-weight: 700; color: #fff; }
+	.h3__card-big--cyan { color: var(--h3-cyan); }
+	.h3__avatars { display: flex; align-items: center; margin-top: 0.25rem; }
+	.h3__avatars img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 2px solid #0a1f2e; margin-left: -8px; }
+	.h3__avatars img:first-child { margin-left: 0; }
+	.h3__avatars-more { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; margin-left: -8px; }
+
+	@media (max-width: 900px) {
+		.h3 { grid-template-columns: 1fr; gap: 4rem; }
+		.h3__card--next { right: 2%; }
+		.h3__card--patients { left: 2%; }
+		.h3__card--recovery { right: 2%; }
+	}
+</style>

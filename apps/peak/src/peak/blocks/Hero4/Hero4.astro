@@ -1,0 +1,110 @@
+---
+import type { Hero4Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero4Props;
+const { title, body, buttonText, buttonUrl, image, imageAlt, stats } = node;
+const statList = Array.isArray(stats) ? stats.filter((s) => s?.value || s?.label) : [];
+const hasCta = Boolean(buttonText && buttonUrl);
+const secNode = { ...node, width: (node as any).width || "full" };
+
+// Displacement map = repeating horizontal gradient (black→white→black per rib),
+// so feDisplacementMap bends the image left/right through each vertical rib —
+// real reeded-glass refraction, not painted stripes.
+const ribMap =
+	"data:image/svg+xml;utf8," +
+	encodeURIComponent(
+		`<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="8"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#000"/><stop offset="0.5" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient><pattern id="p" width="26" height="8" patternUnits="userSpaceOnUse"><rect width="26" height="8" fill="url(#g)"/></pattern></defs><rect width="2000" height="8" fill="url(#p)"/></svg>`,
+	);
+---
+
+<PeakSection node={secNode}>
+	<div class="h4">
+		{image && <img class="h4__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
+		<div class="h4__play" aria-hidden="true"></div>
+		{image && <img class="h4__glass" src={image} alt="" aria-hidden="true" />}
+		<div class="h4__lines" aria-hidden="true"></div>
+		<div class="h4__overlay"></div>
+		<div class="h4__inner">
+			<div class="h4__content">
+				{title && <h1 class="h4__title">{title}</h1>}
+				{body && <p class="h4__body">{body}</p>}
+				{hasCta && <a class="h4__btn" href={buttonUrl}>{buttonText}</a>}
+			</div>
+			{statList.length > 0 && (
+				<div class="h4__stats">
+					{statList.map((s) => (
+						<div class="h4__stat">
+							<span class="h4__stat-value">{s.value}</span>
+							<span class="h4__stat-label">{s.label}</span>
+						</div>
+					))}
+				</div>
+			)}
+		</div>
+	</div>
+</PeakSection>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+	<filter id="peak-reeded" x="0" y="0" width="100%" height="100%">
+		<feImage href={ribMap} result="ribs" preserveAspectRatio="none" />
+		<feDisplacementMap in="SourceGraphic" in2="ribs" scale="20" xChannelSelector="R" />
+	</filter>
+</svg>
+
+<style>
+	.h4 { position: relative; min-height: clamp(520px, 70vh, 760px); overflow: hidden; color: #fff; }
+	.h4__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+	/* The refracted glass = a copy of the image, displaced through the ribs and
+	   softened, shown only on the left (mask) where the text sits. */
+	.h4__glass {
+		position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+		filter: url(#peak-reeded) blur(1.5px) brightness(1.04) saturate(1.05);
+		-webkit-mask-image: linear-gradient(90deg, #000 0%, #000 46%, transparent 78%);
+		mask-image: linear-gradient(90deg, #000 0%, #000 46%, transparent 78%);
+		pointer-events: none;
+	}
+	/* Soft glass-rib glints over the refracted image (white highlight + faint
+	   shadow per rib — gentle, so it reads as glossy glass, not blinds). */
+	.h4__lines {
+		position: absolute; inset: 0;
+		background:
+			repeating-linear-gradient(90deg,
+				rgba(255,255,255,0.14) 0px,
+				rgba(255,255,255,0) 3px,
+				rgba(0,0,0,0.05) 13px,
+				rgba(255,255,255,0) 23px,
+				rgba(255,255,255,0.14) 26px);
+		-webkit-mask-image: linear-gradient(90deg, #000 0%, #000 46%, transparent 78%);
+		mask-image: linear-gradient(90deg, #000 0%, #000 46%, transparent 78%);
+		pointer-events: none;
+	}
+	.h4__play {
+		position: absolute; left: 11%; bottom: 16%;
+		width: 0; height: 0;
+		border-left: 90px solid rgba(255,255,255,0.14);
+		border-top: 58px solid transparent; border-bottom: 58px solid transparent;
+		pointer-events: none;
+	}
+	.h4__overlay {
+		position: absolute; inset: 0;
+		background: linear-gradient(90deg, rgba(28,22,16,0.55) 0%, rgba(28,22,16,0.28) 42%, rgba(28,22,16,0.02) 72%);
+	}
+	.h4__inner {
+		position: relative; max-width: var(--peak-wide, 1180px); margin: 0 auto; min-height: inherit;
+		padding: clamp(2rem, 5vw, 4rem) var(--peak-gutter, 1.5rem);
+		display: flex; flex-direction: column; justify-content: space-between; gap: 2rem;
+	}
+	.h4__content { max-width: 34rem; margin-top: auto; margin-bottom: auto; }
+	.h4__title { font-size: calc(clamp(2.5rem, 5vw, 3.75rem) * var(--peak-font-scale, 1)); font-weight: 700; line-height: 1.08; letter-spacing: -0.01em; margin: 0 0 1.25rem; }
+	.h4__body { font-size: calc(1.05rem * var(--peak-font-scale, 1)); line-height: 1.65; color: rgba(255,255,255,0.88); margin: 0 0 2rem; max-width: 30rem; }
+	.h4__btn { display: inline-block; background: #fff; color: #1a1a1a; padding: 1rem 1.75rem; border-radius: var(--peak-radius, 0.5rem); font-weight: 600; text-decoration: none; }
+	.h4__stats { display: flex; gap: clamp(1.5rem, 4vw, 3.5rem); align-self: flex-end; flex-wrap: wrap; }
+	.h4__stat { display: flex; flex-direction: column; }
+	.h4__stat-value { font-size: calc(2.25rem * var(--peak-font-scale, 1)); font-weight: 700; line-height: 1; }
+	.h4__stat-label { font-size: 0.9rem; color: rgba(255,255,255,0.8); margin-top: 0.35rem; }
+	@media (max-width: 700px) {
+		.h4__overlay { background: linear-gradient(180deg, rgba(28,22,16,0.35) 0%, rgba(28,22,16,0.8) 100%); }
+		.h4__stats { align-self: flex-start; }
+	}
+</style>

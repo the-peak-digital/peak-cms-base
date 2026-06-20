@@ -1,0 +1,114 @@
+---
+import type { Hero9Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero9Props;
+const { videoUrl, poster, posterAlt, title, subtitle, primaryText, primaryUrl, secondaryText, secondaryUrl, footerText } = node;
+const secNode = { ...node, width: (node as any).width || "full" };
+---
+
+<PeakSection node={secNode}>
+	<div class="hv">
+		{videoUrl ? (
+			<video class="hv__bg" autoplay loop muted playsinline poster={poster || undefined}>
+				<source src={videoUrl} type="video/mp4" />
+			</video>
+		) : (
+			poster && <img class="hv__bg" src={poster} alt={posterAlt ?? ""} loading="eager" />
+		)}
+		<!-- subtle left scrim keeps the light text readable over bright video -->
+		<div class="hv__scrim" aria-hidden="true"></div>
+		<!-- white panel that sweeps in from the left on hover -->
+		<div class="hv__panel" aria-hidden="true"></div>
+
+		<div class="hv__inner">
+			<div class="hv__top">
+				{title && <h1 class="hv__title">{title}</h1>}
+				{subtitle && <p class="hv__subtitle">{subtitle}</p>}
+			</div>
+			<div class="hv__bottom">
+				<div class="hv__actions">
+					{primaryText && (
+						<div class="hv__action">
+							<span class="hv__num">01.</span>
+							<a class="hv__btn" href={primaryUrl}>{primaryText}</a>
+						</div>
+					)}
+					{secondaryText && (
+						<div class="hv__action">
+							<span class="hv__num">02.</span>
+							<a class="hv__link" href={secondaryUrl}>{secondaryText}</a>
+						</div>
+					)}
+				</div>
+				{footerText && <p class="hv__footer">{footerText}</p>}
+			</div>
+		</div>
+	</div>
+</PeakSection>
+
+<script>
+	// The white panel reveals only while the cursor is over the LEFT half.
+	function initVideoHeroes() {
+		document.querySelectorAll(".hv").forEach((hero) => {
+			if (hero.dataset.peakBound) return;
+			hero.dataset.peakBound = "1";
+			hero.addEventListener("mousemove", (e) => {
+				const r = hero.getBoundingClientRect();
+				hero.classList.toggle("is-left", e.clientX - r.left < r.width * 0.5);
+			});
+			hero.addEventListener("mouseleave", () => hero.classList.remove("is-left"));
+		});
+	}
+	initVideoHeroes();
+	document.addEventListener("astro:page-load", initVideoHeroes);
+</script>
+
+<style>
+	.hv { position: relative; min-height: clamp(560px, 92vh, 900px); overflow: hidden; color: #fff; }
+	.hv__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+	.hv__scrim { position: absolute; inset: 0; background: linear-gradient(100deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.2) 32%, rgba(0,0,0,0) 58%); transition: opacity 1.2s ease; }
+	.hv.is-left .hv__scrim { opacity: 0; }
+	/* White reveal panel — covers the left ~half, hidden until hover. */
+	.hv__panel {
+		position: absolute; top: 0; left: 0; bottom: 0; width: 50%;
+		background: rgba(255,255,255,0.9);
+		transform: scaleX(0); transform-origin: left center;
+		transition: transform 1.6s cubic-bezier(0.65, 0, 0.2, 1);
+		pointer-events: none;
+	}
+	.hv.is-left .hv__panel { transform: scaleX(1); }
+
+	.hv__inner {
+		position: relative; max-width: var(--peak-wide, 1180px); margin: 0 auto; min-height: inherit;
+		padding: clamp(2.5rem, 5vw, 4.5rem) var(--peak-gutter, 1.5rem);
+		display: flex; flex-direction: column; justify-content: space-between; gap: 3rem;
+	}
+	.hv__top { max-width: 36rem; margin-top: clamp(2rem, 8vh, 6rem); }
+	.hv__title {
+		font-size: calc(clamp(2.5rem, 5vw, 4rem) * var(--peak-font-scale, 1));
+		font-weight: 300; line-height: 1.12; margin: 0 0 2rem; letter-spacing: -0.01em;
+		transition: color 1.2s ease 0.1s;
+	}
+	.hv__subtitle { font-size: calc(1.1rem * var(--peak-font-scale, 1)); line-height: 1.6; max-width: 26rem; margin: 0; transition: color 1.2s ease 0.1s; }
+	.hv__bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
+	.hv__actions { display: flex; gap: 2.5rem; flex-wrap: wrap; }
+	.hv__action { border-top: 1px solid rgba(255,255,255,0.5); padding-top: 0.85rem; min-width: 220px; }
+	.hv__num { display: block; margin-bottom: 0.6rem; font-size: 0.9rem; transition: color 1.2s ease 0.1s; }
+	.hv__btn { display: inline-block; background: #fff; color: #1a1a1a; padding: 0.85rem 1.25rem; font-weight: 500; text-decoration: none; transition: background 1.2s ease, color 1.2s ease; }
+	.hv__link { color: #fff; text-decoration: underline; text-underline-offset: 3px; transition: color 1.2s ease 0.1s; }
+	.hv__footer { font-size: calc(1.4rem * var(--peak-font-scale, 1)); margin: 0; align-self: flex-end; }
+
+	/* Hover state: invert the left-side text to dark, flip the button. */
+	.hv.is-left .hv__title,
+	.hv.is-left .hv__subtitle,
+	.hv.is-left .hv__num,
+	.hv.is-left .hv__link { color: #1a1a1a; }
+	.hv.is-left .hv__action { border-top-color: rgba(0,0,0,0.25); }
+	.hv.is-left .hv__btn { background: #1a1a1a; color: #fff; }
+
+	@media (max-width: 800px) {
+		.hv__panel { display: none; }
+		.hv__bottom { flex-direction: column; align-items: flex-start; }
+	}
+</style>

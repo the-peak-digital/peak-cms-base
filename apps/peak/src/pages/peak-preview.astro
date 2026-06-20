@@ -1,0 +1,57 @@
+---
+/**
+ * Dev-only block preview page. Auto-discovers every block that exports a
+ * `sample` from blocks/<Name>/sample.ts and renders it wrapped in a
+ * [data-block="<type>"] element, with its sample data inlined as JSON.
+ *
+ * The make-section script (scripts/peak/make-section.mjs) drives this page:
+ * it screenshots each [data-block] and reads the JSON to build the Section
+ * content + the demo page. Single source of truth = sample.ts. Not linked
+ * anywhere; safe to leave in the tree.
+ */
+const samples = import.meta.glob("../peak/blocks/*/sample.ts", { eager: true }) as Record<
+	string,
+	{ sample: Record<string, unknown> }
+>;
+const comps = import.meta.glob("../peak/blocks/*/*.astro", { eager: true }) as Record<
+	string,
+	{ default: any }
+>;
+
+// Pair each sample.ts with its sibling <Name>/<Name>.astro and the schema type.
+const schemas = import.meta.glob("../peak/blocks/*/schema.ts", { eager: true }) as Record<
+	string,
+	{ schema: { type: string } }
+>;
+
+const blocks = Object.entries(samples)
+	.map(([path, mod]) => {
+		const dir = path.slice(0, path.lastIndexOf("/")); // ../peak/blocks/<Name>
+		const name = dir.slice(dir.lastIndexOf("/") + 1);
+		const Comp = comps[`${dir}/${name}.astro`]?.default;
+		const type = schemas[`${dir}/schema.ts`]?.schema?.type;
+		return Comp && type ? { name, type, Comp, sample: mod.sample } : null;
+	})
+	.filter(Boolean) as Array<{ name: string; type: string; Comp: any; sample: Record<string, unknown> }>;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Peak block preview</title>
+		<style>
+			body { margin: 0; background: #5a5046; font-family: system-ui, sans-serif; }
+			[data-block] { padding: 40px; }
+		</style>
+	</head>
+	<body>
+		{
+			blocks.map(({ type, Comp, sample }) => (
+				<div data-block={type}>
+					<Comp node={sample} />
+					<script type="application/json" class="peak-sample" set:html={JSON.stringify({ type, node: sample })} />
+				</div>
+			))
+		}
+	</body>
+</html>

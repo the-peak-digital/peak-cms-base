@@ -1,0 +1,109 @@
+---
+import type { Hero5Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero5Props;
+const {
+	title, body, primaryText, primaryUrl, secondaryText, secondaryUrl,
+	statValue, statText, image, imageAlt, overlayText, overlayUrl,
+} = node;
+---
+
+<PeakSection node={node}>
+	<div class="h5">
+		<div class="h5__left">
+			{title && <h1 class="h5__title">{title}</h1>}
+			{body && <p class="h5__body">{body}</p>}
+			<div class="h5__actions">
+				{primaryText && <a class="h5__btn" href={primaryUrl}>{primaryText}</a>}
+				{secondaryText && <a class="h5__link" href={secondaryUrl}>{secondaryText} <span aria-hidden="true">→</span></a>}
+			</div>
+			{(statValue || statText) && (
+				<div class="h5__stat">
+					{statValue && (
+						<div class="h5__stat-num">
+							<span class="h5__stat-value">{statValue}</span>
+							<span class="h5__confetti" aria-hidden="true"></span>
+						</div>
+					)}
+					{statText && <p class="h5__stat-text">{statText}</p>}
+				</div>
+			)}
+		</div>
+
+		<div class="h5__right">
+			<div class="h5__frame">
+				{image && <img class="h5__img" src={image} alt={imageAlt ?? ""} loading="eager" />}
+				{overlayText && <a class="h5__overlay-btn" href={overlayUrl}>{overlayText}</a>}
+			</div>
+		</div>
+	</div>
+</PeakSection>
+
+<style>
+	.h5 {
+		--h5-peach: #f8e2cf;
+		--h5-peach-soft: #fcefe2;
+		display: grid;
+		grid-template-columns: 1.05fr 1fr;
+		gap: clamp(2rem, 5vw, 4rem);
+		align-items: center;
+		padding-block: clamp(2.5rem, 5vw, 4.5rem);
+	}
+	/* Left */
+	.h5__title {
+		font-family: Georgia, "Times New Roman", serif;
+		font-size: calc(clamp(2.5rem, 5vw, 4rem) * var(--peak-font-scale, 1));
+		line-height: 1.1; font-weight: 500; margin: 0 0 1.5rem; color: var(--peak-text, #1a1a1a);
+	}
+	.h5__body { font-size: calc(1.15rem * var(--peak-font-scale, 1)); line-height: 1.6; color: var(--peak-muted, #555); max-width: 32rem; margin: 0 0 2.25rem; }
+	.h5__actions { display: flex; align-items: center; gap: 1.75rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+	.h5__btn { background: var(--h5-peach); color: #1a1a1a; padding: 1.1rem 1.75rem; border-radius: 6px; font-weight: 700; text-decoration: none; }
+	.h5__link { display: inline-flex; align-items: center; gap: 0.6rem; color: #1a1a1a; font-weight: 600; text-decoration: none; }
+	.h5__stat {
+		display: flex; align-items: center; gap: 1.25rem;
+		border: 1px solid var(--peak-border, #d8d8d8); border-radius: 12px; padding: 1.25rem 1.5rem; max-width: 36rem;
+	}
+	.h5__stat-num { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-start; }
+	.h5__stat-value { font-size: calc(2.5rem * var(--peak-font-scale, 1)); font-weight: 800; line-height: 1; }
+	/* Confetti sparkles scattered under the stat number, like the reference. */
+	.h5__confetti {
+		position: relative;
+		display: block; width: 120px; height: 36px; margin-top: 6px;
+		background-image:
+			radial-gradient(circle 3px at 6px 24px, #f6c344 98%, transparent),
+			radial-gradient(circle 2.5px at 24px 8px, #4ea4f5 98%, transparent),
+			radial-gradient(circle 3px at 42px 28px, #ef7d6b 98%, transparent),
+			radial-gradient(circle 2px at 60px 12px, #8b5cf6 98%, transparent),
+			radial-gradient(circle 2.5px at 80px 26px, #34d399 98%, transparent),
+			radial-gradient(circle 2px at 100px 9px, #f6c344 98%, transparent),
+			radial-gradient(circle 2.5px at 114px 22px, #4ea4f5 98%, transparent);
+		background-repeat: no-repeat;
+	}
+	/* a couple of little rotated squares for variety */
+	.h5__confetti::before, .h5__confetti::after {
+		content: ""; position: absolute; width: 6px; height: 6px; transform: rotate(35deg);
+	}
+	.h5__confetti::before { left: 32px; top: 20px; background: #ef7d6b; }
+	.h5__confetti::after { left: 90px; top: 18px; background: #f6c344; }
+	.h5__stat-text { font-size: 0.95rem; line-height: 1.5; color: var(--peak-muted, #555); margin: 0; }
+
+	/* Right */
+	.h5__right { display: flex; justify-content: center; }
+	.h5__frame {
+		position: relative; max-width: 460px; width: 100%;
+		background: var(--h5-peach); border-radius: 20px; padding: 10px;
+	}
+	.h5__img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 14px; display: block; }
+	.h5__overlay-btn {
+		position: absolute; left: 24px; right: 24px; bottom: 24px;
+		background: var(--h5-peach-soft); color: #1a1a1a;
+		text-align: center; padding: 1.1rem; border-radius: 10px;
+		font-weight: 800; font-size: 1.15rem; text-decoration: underline; text-underline-offset: 3px;
+	}
+
+	@media (max-width: 860px) {
+		.h5 { grid-template-columns: 1fr; }
+		.h5__stat { max-width: none; }
+	}
+</style>

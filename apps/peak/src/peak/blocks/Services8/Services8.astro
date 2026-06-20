@@ -1,0 +1,220 @@
+---
+import type { Services8Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Services8Props;
+const { badge, title, subtitle, priceLabel = "Price", timelineLabel = "Timeline", tabs, accent = "#1c1b19" } = node;
+
+const tabList = (Array.isArray(tabs) ? tabs : []).filter((t) => t?.label || t?.title);
+const splitFeatures = (s?: string) =>
+	(s ?? "")
+		.split(/[,\n]/)
+		.map((f) => f.trim())
+		.filter(Boolean);
+
+const dollar = '<path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M12 3v18M16 6.5C16 5 14.2 4 12 4S8 5 8 7s2 2.7 4 3 4 1.3 4 3.4S14.2 20 12 20s-4-1-4-2.5"/>';
+const clock = '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M12 7.5V12l3 2"/>';
+const check = '<path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5 10 17 19 7"/>';
+---
+
+<PeakSection node={node}>
+	<div class="ps8" style={`--accent:${accent}`}>
+		<header class="ps8__head">
+			{badge && <span class="ps8__badge">{badge}</span>}
+			{title && <h2 class="ps8__title">{title}</h2>}
+			{subtitle && <p class="ps8__sub">{subtitle}</p>}
+		</header>
+
+		{tabList.length > 0 && (
+			<>
+				<div class="ps8__tabs" role="tablist">
+					{tabList.map((t, i) => (
+						<button
+							type="button"
+							class:list={["ps8__tab", { "is-active": i === 0 }]}
+							data-tab={i}
+							role="tab"
+							aria-selected={i === 0 ? "true" : "false"}
+						>
+							{t.label}
+						</button>
+					))}
+				</div>
+
+				<div class="ps8__panels">
+					{tabList.map((t, i) => (
+						<div class:list={["ps8__panel", { "is-active": i === 0 }]} data-panel={i} role="tabpanel">
+							<div class="ps8__info">
+								{t.title && <h3 class="ps8__panel-title">{t.title}</h3>}
+								{t.description && <p class="ps8__desc">{t.description}</p>}
+
+								{t.price && (
+									<div class="ps8__row">
+										<span class="ps8__row-label">
+											<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" set:html={dollar} />
+											{priceLabel}
+										</span>
+										<span class="ps8__row-value">{t.price}</span>
+									</div>
+								)}
+								{t.timeline && (
+									<div class="ps8__row">
+										<span class="ps8__row-label">
+											<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" set:html={clock} />
+											{timelineLabel}
+										</span>
+										<span class="ps8__row-value">{t.timeline}</span>
+									</div>
+								)}
+
+								{splitFeatures(t.features).length > 0 && (
+									<ul class="ps8__feats">
+										{splitFeatures(t.features).map((f) => (
+											<li class="ps8__feat">
+												<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" set:html={check} />
+												{f}
+											</li>
+										))}
+									</ul>
+								)}
+							</div>
+							<div class="ps8__media">{t.image && <img src={t.image} alt={t.alt ?? t.title ?? ""} loading="lazy" />}</div>
+						</div>
+					))}
+				</div>
+			</>
+		)}
+	</div>
+</PeakSection>
+
+<style>
+	.ps8 { color: #1c1b19; }
+
+	.ps8__head { text-align: center; max-width: 640px; margin: 0 auto clamp(1.75rem, 3vw, 2.75rem); }
+	.ps8__badge {
+		display: inline-block;
+		padding: 0.4rem 0.9rem;
+		background: #f1f0ee;
+		border: 1px solid #e4e3e0;
+		border-radius: 8px;
+		font-size: 0.9rem;
+		font-weight: 500;
+	}
+	.ps8__title {
+		margin: 1rem 0 0;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		font-size: calc(clamp(2.2rem, 4.5vw, 3.4rem) * var(--peak-font-scale, 1));
+	}
+	.ps8__sub { margin: 0.75rem 0 0; color: #6b6862; font-size: calc(1.05rem * var(--peak-font-scale, 1)); line-height: 1.5; }
+
+	/* Tab bar. */
+	.ps8__tabs {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		background: #f1f0ee;
+		border-radius: 14px;
+		padding: 6px;
+		margin-bottom: 1.25rem;
+	}
+	.ps8__tab {
+		flex: 1 1 auto;
+		min-width: max-content;
+		padding: 0.85rem 1.25rem;
+		border: 0;
+		border-radius: 10px;
+		background: transparent;
+		color: #58554f;
+		font: inherit;
+		font-size: 1rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+	}
+	.ps8__tab.is-active {
+		background: #fff;
+		color: #1c1b19;
+		font-weight: 600;
+		box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.25);
+	}
+
+	/* Panels. */
+	.ps8__panel { display: none; }
+	.ps8__panel.is-active {
+		display: grid;
+		grid-template-columns: 1fr 1.05fr;
+		gap: clamp(1.5rem, 3vw, 2.5rem);
+		background: #fff;
+		border: 1px solid #ececea;
+		border-radius: 18px;
+		overflow: hidden;
+	}
+	.ps8__info { padding: clamp(1.75rem, 3vw, 2.75rem); }
+	.ps8__panel-title {
+		margin: 0;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		font-size: calc(clamp(1.6rem, 2.5vw, 2.2rem) * var(--peak-font-scale, 1));
+	}
+	.ps8__desc { margin: 1rem 0 1.75rem; color: #6b6862; font-size: calc(1.02rem * var(--peak-font-scale, 1)); line-height: 1.55; max-width: 42ch; }
+
+	.ps8__row {
+		display: grid;
+		grid-template-columns: minmax(140px, auto) 1fr;
+		align-items: center;
+		gap: 1rem;
+		padding: 1rem 0;
+		border-bottom: 1px solid #eeedea;
+		border-bottom-color: #efeeec;
+	}
+	.ps8__row-label { display: inline-flex; align-items: center; gap: 0.6rem; color: #57544e; }
+	.ps8__row-label svg { color: #8a857c; }
+	.ps8__row-value { font-weight: 600; }
+
+	.ps8__feats { list-style: none; display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.75rem 0 0; padding: 0; }
+	.ps8__feat {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.55rem 0.85rem;
+		border: 1px solid #e6e5e2;
+		border-radius: 8px;
+		font-size: 0.92rem;
+		color: #3f3d39;
+	}
+	.ps8__feat svg { color: var(--accent); }
+
+	.ps8__media { position: relative; min-height: 320px; background: #ece7e1; }
+	.ps8__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+	@media (max-width: 820px) {
+		.ps8__panel.is-active { grid-template-columns: 1fr; }
+		.ps8__media { min-height: 260px; order: -1; }
+	}
+</style>
+
+<script>
+	// Tab switcher: click a tab to swap the active panel. Per-instance guard +
+	// astro:page-load re-init. No-JS shows the first tab (rendered active).
+	function initPs8(root: HTMLElement) {
+		if (root.dataset.ps8Init) return;
+		root.dataset.ps8Init = "1";
+		const tabs = Array.from(root.querySelectorAll<HTMLElement>(".ps8__tab"));
+		const panels = Array.from(root.querySelectorAll<HTMLElement>(".ps8__panel"));
+		const activate = (idx: number) => {
+			tabs.forEach((t) => {
+				const on = Number(t.dataset.tab) === idx;
+				t.classList.toggle("is-active", on);
+				t.setAttribute("aria-selected", on ? "true" : "false");
+			});
+			panels.forEach((p) => p.classList.toggle("is-active", Number(p.dataset.panel) === idx));
+		};
+		tabs.forEach((t) => t.addEventListener("click", () => activate(Number(t.dataset.tab))));
+	}
+	function initAllPs8() {
+		document.querySelectorAll<HTMLElement>(".ps8").forEach(initPs8);
+	}
+	document.addEventListener("astro:page-load", initAllPs8);
+	initAllPs8();
+</script>

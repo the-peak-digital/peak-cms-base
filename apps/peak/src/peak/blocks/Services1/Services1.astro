@@ -1,0 +1,218 @@
+---
+import type { Services1Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Services1Props;
+const {
+	badge,
+	title,
+	description,
+	buttonText,
+	buttonUrl = "#",
+	cards,
+	bg = "#ece3d6",
+	accent = "#1c1b19",
+} = node;
+
+const cardList = Array.isArray(cards) ? cards.filter((c) => c?.image || c?.label) : [];
+
+// Up-right arrow, reused by the CTA and every card.
+const arrow =
+	'<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7M9 7h8v8"/>';
+// Small wrench for the badge.
+const wrench =
+	'<path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M14.5 6a3.5 3.5 0 0 0-4.6 4.3l-5.1 5.1a1.5 1.5 0 0 0 2.1 2.1l5.1-5.1A3.5 3.5 0 0 0 17.5 9l-2 2-2-2 2-2a3.5 3.5 0 0 0-1-1z"/>';
+---
+
+<PeakSection node={node}>
+	<div class="psv" style={`--bg:${bg}; --accent:${accent}`}>
+		<div class="psv__head">
+			<div class="psv__lead">
+				{badge && (
+					<span class="psv__badge">
+						<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" set:html={wrench} />
+						{badge}
+					</span>
+				)}
+				{title && <h2 class="psv__title">{title}</h2>}
+			</div>
+			<div class="psv__aside">
+				{description && <p class="psv__desc">{description}</p>}
+				{buttonText && (
+					<a class="psv__cta" href={buttonUrl}>
+						<span>{buttonText}</span>
+						<span class="psv__cta-ico">
+							<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" set:html={arrow} />
+						</span>
+					</a>
+				)}
+			</div>
+		</div>
+
+		{cardList.length > 0 && (
+			<div class="psv__cards" style={`--cols:${cardList.length}`}>
+				{cardList.map((c) => (
+					<a class="psv__card" href={c.url || undefined}>
+						{c.image && <img class="psv__img" src={c.image} alt={c.alt ?? c.label ?? ""} loading="lazy" />}
+						<span class="psv__arrow" aria-hidden="true">
+							<svg viewBox="0 0 24 24" width="18" height="18" set:html={arrow} />
+						</span>
+						{c.label && <span class="psv__label">{c.label}</span>}
+					</a>
+				))}
+			</div>
+		)}
+	</div>
+</PeakSection>
+
+<style>
+	.psv {
+		background: var(--bg);
+		color: #1c1b19;
+		border-radius: clamp(18px, 2.5vw, 34px);
+		padding: clamp(1.75rem, 4vw, 3.5rem);
+	}
+
+	/* Header: serif headline left, copy + CTA right. */
+	.psv__head {
+		display: grid;
+		grid-template-columns: 1.1fr 1fr;
+		gap: clamp(1.5rem, 4vw, 3rem);
+		align-items: start;
+		margin-bottom: clamp(1.75rem, 3.5vw, 3rem);
+	}
+	.psv__badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		padding: 0.4rem 0.85rem;
+		background: #fff;
+		border-radius: 999px;
+		font-size: calc(0.9rem * var(--peak-font-scale, 1));
+		font-weight: 600;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+	}
+	.psv__title {
+		font-family: Georgia, "Times New Roman", serif;
+		font-style: italic;
+		font-weight: 500;
+		font-size: calc(clamp(2.4rem, 4.5vw, 3.6rem) * var(--peak-font-scale, 1));
+		line-height: 1.05;
+		margin: 1.1rem 0 0;
+		max-width: 12ch;
+	}
+	.psv__aside {
+		padding-top: 0.5rem;
+	}
+	.psv__desc {
+		font-size: calc(1.15rem * var(--peak-font-scale, 1));
+		line-height: 1.45;
+		color: #4a463f;
+		margin: 0;
+		max-width: 34ch;
+	}
+	.psv__cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.9rem;
+		margin-top: 1.5rem;
+		padding: 0.5rem 0.5rem 0.5rem 1.5rem;
+		background: #e0cdb4;
+		border-radius: 999px;
+		color: #1c1b19;
+		font-weight: 600;
+		font-size: 1.05rem;
+		text-decoration: none;
+		transition: background 0.18s ease;
+	}
+	.psv__cta:hover {
+		background: #d6bfa1;
+	}
+	.psv__cta-ico {
+		display: grid;
+		place-items: center;
+		width: 38px;
+		height: 38px;
+		border-radius: 50%;
+		background: var(--accent);
+		color: #fff;
+	}
+
+	/* Card row. */
+	.psv__cards {
+		display: grid;
+		grid-template-columns: repeat(var(--cols, 5), 1fr);
+		gap: clamp(0.75rem, 1.5vw, 1.25rem);
+	}
+	.psv__card {
+		position: relative;
+		display: block;
+		aspect-ratio: 7 / 13;
+		border-radius: 18px;
+		overflow: hidden;
+		background: #cfc4b4;
+		color: #fff;
+		text-decoration: none;
+		isolation: isolate;
+	}
+	.psv__img {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		z-index: -2;
+		transition: transform 0.4s ease;
+	}
+	.psv__card:hover .psv__img {
+		transform: scale(1.05);
+	}
+	/* Bottom gradient for label legibility. */
+	.psv__card::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.15) 38%, rgba(0, 0, 0, 0) 62%);
+	}
+	.psv__arrow {
+		position: absolute;
+		top: 0.7rem;
+		right: 0.7rem;
+		display: grid;
+		place-items: center;
+		width: 34px;
+		height: 34px;
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.25);
+		backdrop-filter: blur(6px);
+		color: #fff;
+		border: 1px solid rgba(255, 255, 255, 0.35);
+	}
+	.psv__label {
+		position: absolute;
+		left: 1.1rem;
+		right: 1.1rem;
+		bottom: 1.1rem;
+		font-size: calc(1.15rem * var(--peak-font-scale, 1));
+		font-weight: 600;
+		line-height: 1.2;
+	}
+
+	@media (max-width: 1000px) {
+		.psv__head {
+			grid-template-columns: 1fr;
+		}
+		.psv__cards {
+			grid-template-columns: repeat(2, 1fr);
+		}
+		.psv__card {
+			aspect-ratio: 4 / 5;
+		}
+	}
+	@media (max-width: 560px) {
+		.psv__cards {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

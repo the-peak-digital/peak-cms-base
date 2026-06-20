@@ -1,0 +1,40 @@
+---
+// Simple footer — one row: copyright left, links right.
+interface MenuItem { label: string; url: string; target?: string }
+interface Props { siteTitle?: string; items?: MenuItem[] }
+const { siteTitle = "Site", items = [] } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="peak-fs">
+	<div class="peak-fs__row">
+		<p class="peak-fs__copy">&copy; {year} {siteTitle}</p>
+		{items.length > 0 && (
+			<nav class="peak-fs__links">
+				{items.map((i) => <a href={i.url} target={i.target}>{i.label}</a>)}
+			</nav>
+		)}
+	</div>
+</footer>
+
+<style>
+	.peak-fs {
+		border-top: 1px solid var(--peak-border, #e2e8f0);
+		background: var(--peak-bg, #fff);
+		margin-top: 3rem;
+	}
+	.peak-fs__row {
+		max-width: var(--peak-wide, 1100px);
+		margin: 0 auto;
+		padding: 1.25rem var(--peak-space-md, 1.5rem);
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+	.peak-fs__copy { margin: 0; color: var(--peak-muted, #64748b); }
+	.peak-fs__links { display: flex; gap: 1.25rem; }
+	.peak-fs__links a { color: var(--peak-muted, #475569); text-decoration: none; }
+	.peak-fs__links a:hover { color: var(--peak-primary, #4f46e5); }
+</style>

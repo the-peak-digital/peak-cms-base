@@ -1,0 +1,120 @@
+---
+import type { Services15Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Services15Props;
+const { badge, text, buttonText, buttonUrl = "#", works, bg = "#141414" } = node;
+
+const list = (Array.isArray(works) ? works : []).filter((w) => w?.image || w?.label);
+---
+
+<PeakSection node={node}>
+	<div class="ps15" style={`--bg:${bg}`}>
+		<aside class="ps15__left">
+			{badge && <span class="ps15__badge">{badge}</span>}
+			{text && <p class="ps15__text">{text}</p>}
+			{buttonText && <a class="ps15__btn" href={buttonUrl}>{buttonText}</a>}
+		</aside>
+
+		<div class="ps15__right">
+			{list.map((w) => (
+				<div class="ps15__work">
+					{w.image && <img src={w.image} alt={w.alt ?? w.label ?? ""} loading="lazy" />}
+					{w.label && (w.url
+						? <a class="ps15__label" href={w.url}>{w.label}</a>
+						: <span class="ps15__label">{w.label}</span>)}
+				</div>
+			))}
+		</div>
+	</div>
+</PeakSection>
+
+<style>
+	.ps15 {
+		/* Full-bleed two columns. */
+		width: 100vw;
+		margin-inline: calc(50% - 50vw);
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		align-items: start;
+		gap: 4px;
+		background: var(--bg);
+	}
+
+	/* Sticky dark intro panel. */
+	.ps15__left {
+		position: sticky;
+		top: 0;
+		align-self: start;
+		height: 100vh;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		gap: 2rem;
+		padding: clamp(1.75rem, 3vw, 3rem);
+		background: var(--bg);
+		color: #e9e8e4;
+	}
+	.ps15__badge {
+		align-self: flex-start;
+		padding: 0.4rem 0.8rem;
+		background: rgba(255, 255, 255, 0.12);
+		border-radius: 6px;
+		font-family: ui-monospace, "SF Mono", Menlo, monospace;
+		font-size: 0.85rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: #cfcdc8;
+	}
+	.ps15__text {
+		margin: auto 0;
+		max-width: 18ch;
+		color: #b9b7b1;
+		font-weight: 500;
+		letter-spacing: -0.01em;
+		line-height: 1.3;
+		font-size: calc(clamp(1.6rem, 2.6vw, 2.4rem) * var(--peak-font-scale, 1));
+	}
+	.ps15__btn {
+		align-self: flex-start;
+		padding: 0.85rem 1.5rem;
+		background: #fff;
+		color: #141414;
+		border-radius: 6px;
+		font-family: ui-monospace, "SF Mono", Menlo, monospace;
+		font-size: 0.85rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		text-decoration: none;
+	}
+
+	/* Scrolling column of project cards. */
+	.ps15__right { display: flex; flex-direction: column; gap: 4px; }
+	.ps15__work {
+		position: relative;
+		overflow: hidden;
+		/* ~half the viewport, so two cards sit next to the full-height left panel. */
+		height: clamp(260px, calc((100vh - 4px) / 2), 560px);
+		background: #d9d4cc;
+	}
+	.ps15__work img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+	.ps15__work:hover img { transform: scale(1.03); }
+	.ps15__label {
+		position: absolute;
+		left: clamp(1rem, 1.6vw, 1.6rem);
+		bottom: clamp(1rem, 1.6vw, 1.6rem);
+		background: #fff;
+		color: #141414;
+		padding: 0.4rem 0.9rem;
+		border-radius: 6px;
+		font-weight: 600;
+		font-size: calc(clamp(1.3rem, 1.8vw, 1.7rem) * var(--peak-font-scale, 1));
+		text-decoration: none;
+	}
+
+	@media (max-width: 760px) {
+		.ps15 { grid-template-columns: 1fr; }
+		.ps15__left { position: static; height: auto; }
+		.ps15__work { height: 60vh; }
+	}
+</style>

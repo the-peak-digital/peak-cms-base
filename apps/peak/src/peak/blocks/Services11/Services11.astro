@@ -1,0 +1,151 @@
+---
+import type { Services11Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Services11Props;
+const { badge, title, tagline, cards } = node;
+
+const cardList = Array.isArray(cards) ? cards.filter((c) => c?.title || c?.image) : [];
+---
+
+<PeakSection node={node}>
+	<div class="ps11">
+		<header class="ps11__head">
+			<div class="ps11__head-left">
+				{badge && <span class="ps11__badge">[ {badge} ]</span>}
+				{title && <h2 class="ps11__title">{title}</h2>}
+			</div>
+			{tagline && <p class="ps11__tagline">{tagline}</p>}
+		</header>
+
+		{cardList.length > 0 && (
+			<div class="ps11__row">
+				{cardList.map((c, i) => (
+					<article class:list={["ps11__card", { "is-active": i === 0 }]} data-index={i} tabindex="0">
+						{c.image && <img class="ps11__img" src={c.image} alt={c.alt ?? c.title ?? ""} loading="lazy" />}
+						<span class="ps11__num ps11__num--top">{String(i + 1).padStart(2, "0")}</span>
+						<div class="ps11__body">
+							<span class="ps11__num ps11__num--bottom">{String(i + 1).padStart(2, "0")}</span>
+							{c.title && <h3 class="ps11__card-title">{c.title}</h3>}
+							{c.description && <p class="ps11__desc">{c.description}</p>}
+						</div>
+					</article>
+				))}
+			</div>
+		)}
+	</div>
+</PeakSection>
+
+<style>
+	.ps11 { color: #15161a; }
+
+	.ps11__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 2rem; margin-bottom: clamp(1.5rem, 3vw, 2.5rem); }
+	.ps11__badge { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.12em; color: #555; }
+	.ps11__title {
+		margin: 0.6rem 0 0;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		font-size: calc(clamp(2.4rem, 5vw, 4rem) * var(--peak-font-scale, 1));
+	}
+	.ps11__tagline { margin: 0.6rem 0 0; max-width: 34ch; text-align: right; color: #6b6862; font-size: calc(1.02rem * var(--peak-font-scale, 1)); line-height: 1.5; }
+
+	/* Accordion row. */
+	.ps11__row { display: flex; height: clamp(380px, 52vh, 470px); border: 1px solid #e7e5e1; }
+	.ps11__card {
+		position: relative;
+		flex: 1 1 0;
+		min-width: 0;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		padding: clamp(1rem, 1.6vw, 1.6rem);
+		background: #fff;
+		color: #1a1a1a;
+		border-right: 1px solid #e7e5e1;
+		outline: none;
+		transition: flex-grow 0.6s cubic-bezier(0.22, 1, 0.36, 1), color 0.4s ease;
+	}
+	.ps11__card:last-child { border-right: 0; }
+	.ps11__card.is-active { flex-grow: 4.5; color: #fff; }
+
+	.ps11__img {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		opacity: 0;
+		z-index: 0;
+		transition: opacity 0.6s ease;
+	}
+	.ps11__card.is-active .ps11__img { opacity: 1; }
+	/* Bottom gradient for legibility over the image. */
+	.ps11__card::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		background: linear-gradient(to top, rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0.15) 42%, rgba(0, 0, 0, 0) 70%);
+		opacity: 0;
+		transition: opacity 0.6s ease;
+	}
+	.ps11__card.is-active::after { opacity: 1; }
+
+	.ps11__num { position: relative; z-index: 2; font-size: 0.85rem; font-weight: 600; color: #8a857c; }
+	.ps11__card.is-active .ps11__num { color: rgba(255, 255, 255, 0.85); }
+	.ps11__num--bottom { display: none; margin-bottom: 0.6rem; }
+	.ps11__card.is-active .ps11__num--top { opacity: 0; }
+	.ps11__card.is-active .ps11__num--bottom { display: block; }
+
+	.ps11__body { position: relative; z-index: 2; }
+	.ps11__card-title {
+		margin: 0;
+		font-weight: 700;
+		letter-spacing: -0.01em;
+		white-space: nowrap;
+		font-size: calc(clamp(1.1rem, 1.4vw, 1.4rem) * var(--peak-font-scale, 1));
+	}
+	.ps11__desc {
+		margin: 0;
+		max-height: 0;
+		opacity: 0;
+		overflow: hidden;
+		color: rgba(255, 255, 255, 0.85);
+		font-size: calc(0.98rem * var(--peak-font-scale, 1));
+		line-height: 1.5;
+		transition: max-height 0.55s ease, opacity 0.45s ease, margin 0.45s ease;
+	}
+	.ps11__card.is-active .ps11__desc { max-height: 8rem; opacity: 1; margin-top: 0.7rem; }
+
+	@media (prefers-reduced-motion: reduce) {
+		.ps11__card, .ps11__img, .ps11__card::after, .ps11__desc { transition: none; }
+	}
+
+	@media (max-width: 760px) {
+		.ps11__row { flex-direction: column; height: auto; }
+		.ps11__card { border-right: 0; border-bottom: 1px solid #e7e5e1; min-height: 96px; }
+		.ps11__card.is-active { min-height: 360px; }
+	}
+</style>
+
+<script>
+	// Horizontal accordion: hover/focus a card to open it (and close the others).
+	// Per-instance guard + astro:page-load. No-JS shows the first card open.
+	function initPs11(root: HTMLElement) {
+		if (root.dataset.ps11Init) return;
+		root.dataset.ps11Init = "1";
+		const cards = Array.from(root.querySelectorAll<HTMLElement>(".ps11__card"));
+		const activate = (idx: number) => cards.forEach((c) => c.classList.toggle("is-active", Number(c.dataset.index) === idx));
+		cards.forEach((c) => {
+			const idx = Number(c.dataset.index);
+			c.addEventListener("mouseenter", () => activate(idx));
+			c.addEventListener("focusin", () => activate(idx));
+		});
+	}
+	function initAllPs11() {
+		document.querySelectorAll<HTMLElement>(".ps11").forEach(initPs11);
+	}
+	document.addEventListener("astro:page-load", initAllPs11);
+	initAllPs11();
+</script>

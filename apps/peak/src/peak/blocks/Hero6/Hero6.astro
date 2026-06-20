@@ -1,0 +1,52 @@
+---
+import type { Hero6Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero6Props;
+const { eyebrow, title, body, primaryText, primaryUrl, secondaryText, secondaryUrl, image, imageAlt, uppercase = true } = node;
+const secNode = { ...node, width: (node as any).width || "full" };
+---
+
+<PeakSection node={secNode}>
+	<div class="hc">
+		{image && <img class="hc__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
+		<div class="hc__overlay"></div>
+		<div class="hc__inner">
+			{eyebrow && <p class="hc__eyebrow">{eyebrow}</p>}
+			{title && <h1 class:list={["hc__title", { upper: uppercase }]}>{title}</h1>}
+			{body && <p class="hc__body">{body}</p>}
+			{(primaryText || secondaryText) && (
+				<div class="hc__actions">
+					{primaryText && <a class="hc__btn hc__btn--primary" href={primaryUrl}>{primaryText}</a>}
+					{secondaryText && <a class="hc__btn hc__btn--secondary" href={secondaryUrl}>{secondaryText}</a>}
+				</div>
+			)}
+		</div>
+	</div>
+</PeakSection>
+
+<style>
+	.hc { position: relative; min-height: clamp(520px, 80vh, 820px); overflow: hidden; color: #fff; }
+	.hc__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+	.hc__overlay { position: absolute; inset: 0; background: rgba(20,22,26,0.55); }
+	.hc__inner {
+		position: relative; max-width: 1000px; margin: 0 auto; min-height: inherit;
+		padding: clamp(3rem, 7vw, 6rem) var(--peak-gutter, 1.5rem);
+		display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+	}
+	.hc__eyebrow {
+		text-transform: uppercase; letter-spacing: 0.28em; font-size: calc(0.95rem * var(--peak-font-scale, 1));
+		font-weight: 600; margin: 0 0 1rem; color: rgba(255,255,255,0.92);
+	}
+	.hc__title {
+		font-size: calc(clamp(2.75rem, 7vw, 5.5rem) * var(--peak-font-scale, 1));
+		font-weight: 800; line-height: 1.02; letter-spacing: -0.01em; margin: 0 0 1.5rem;
+	}
+	.hc__title.upper { text-transform: uppercase; }
+	.hc__body { font-size: calc(1.2rem * var(--peak-font-scale, 1)); line-height: 1.5; margin: 0 0 2.25rem; max-width: 44rem; color: rgba(255,255,255,0.92); }
+	.hc__actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+	.hc__btn { padding: 1rem 2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.9rem; text-decoration: none; color: #fff; }
+	.hc__btn--primary { background: #1a9c9c; }
+	.hc__btn--secondary { background: #f25c2a; }
+	.hc__btn:hover { filter: brightness(1.08); }
+</style>

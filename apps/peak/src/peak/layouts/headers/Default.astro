@@ -1,0 +1,64 @@
+---
+// Default header — logo left, nav links, CTA on the right.
+interface MenuItem { label: string; url: string; target?: string }
+interface Props { siteTitle?: string; items?: MenuItem[]; ctaText?: string; ctaUrl?: string }
+const { siteTitle = "Site", items = [], ctaText = "Get a Quote", ctaUrl = "/contact" } = Astro.props;
+---
+
+<header class="peak-hd">
+	<nav class="peak-hd__nav">
+		<a href="/" class="peak-hd__logo">{siteTitle}</a>
+		<div class="peak-hd__links">
+			{items.map((i) => <a href={i.url} target={i.target}>{i.label}</a>)}
+		</div>
+		{ctaText && <a class="peak-hd__cta" href={ctaUrl}>{ctaText}</a>}
+	</nav>
+</header>
+
+<style>
+	.peak-hd {
+		border-bottom: 1px solid var(--peak-border, #e2e8f0);
+		background: var(--peak-bg, #fff);
+		position: sticky;
+		top: 0;
+		z-index: 50;
+	}
+	.peak-hd__nav {
+		max-width: var(--peak-wide, 1100px);
+		margin: 0 auto;
+		padding: 0.9rem var(--peak-space-md, 1.5rem);
+		display: flex;
+		align-items: center;
+		gap: 1.5rem;
+	}
+	.peak-hd__logo {
+		font-weight: 800;
+		font-size: 1.25rem;
+		text-decoration: none;
+		color: var(--peak-text, #0f172a);
+	}
+	.peak-hd__links {
+		display: flex;
+		gap: 1.25rem;
+		margin-left: auto;
+	}
+	.peak-hd__links a {
+		color: var(--peak-muted, #475569);
+		text-decoration: none;
+		font-weight: 500;
+	}
+	.peak-hd__links a:hover {
+		color: var(--peak-primary, #4f46e5);
+	}
+	.peak-hd__cta {
+		padding: 0.55rem 1rem;
+		border-radius: var(--peak-radius, 0.5rem);
+		background: var(--peak-primary, #4f46e5);
+		color: #fff;
+		font-weight: 600;
+		text-decoration: none;
+	}
+	@media (max-width: 640px) {
+		.peak-hd__links { display: none; }
+	}
+</style>

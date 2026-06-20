@@ -1,0 +1,122 @@
+---
+import type { Hero17Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero17Props;
+const { badge, title, body, buttonText, buttonUrl, image, imageAlt, rating = 5, quote } = node;
+const stars = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+const secNode = { ...node, width: (node as any).width || "full" };
+---
+
+<PeakSection node={secNode}>
+	<div class="rf">
+		<div class="rf__left">
+			<div class="rf__inner">
+				{badge && (
+					<span class="rf__badge rf__reveal" style="--i:1"><span class="rf__dot"></span>{badge}</span>
+				)}
+				{title && <h1 class="rf__title"><span class="rf__type">{title}</span></h1>}
+				{body && <p class="rf__body rf__reveal" style="--i:2">{body}</p>}
+				{buttonText && (
+					<a class="rf__btn rf__reveal" style="--i:3" href={buttonUrl}>
+						<span>{buttonText}</span>
+						<span class="rf__btn-ico" aria-hidden="true">↗</span>
+					</a>
+				)}
+			</div>
+		</div>
+
+		<div class="rf__right">
+			{image && (
+				<div class="rf__imgwrap">
+					<img class="rf__img" src={image} alt={imageAlt ?? ""} loading="eager" />
+				</div>
+			)}
+			{quote && (
+				<figure class="rf__quote rf__reveal" style="--i:4">
+					<div class="rf__stars" aria-label={`${stars} out of 5`}>{"★".repeat(stars)}</div>
+					<blockquote>{`"${quote}"`}</blockquote>
+				</figure>
+			)}
+		</div>
+	</div>
+</PeakSection>
+
+<style>
+	.rf { --bg:#0d0e11; display: grid; grid-template-columns: 1fr 1fr; min-height: clamp(620px, 100vh, 1080px); background: var(--bg); color: #fff; }
+	.rf__left { display: flex; align-items: center; padding: clamp(1.5rem, 4vw, 4rem) clamp(1.5rem, 4vw, 4.5rem); }
+	.rf__inner { width: 100%; max-width: 36rem; }
+
+	.rf__badge { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.95rem; border-radius: 999px; background: #1a1c21; font-size: 0.95rem; color: #d6d8dc; margin-bottom: 1.75rem; }
+	.rf__dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+
+	.rf__title { font-size: calc(clamp(2.4rem, 4.6vw, 4rem) * var(--peak-font-scale, 1)); font-weight: 600; line-height: 1.05; letter-spacing: -0.02em; margin: 0; min-height: 1.05em; }
+	.rf__type { white-space: pre-wrap; }
+	.rf__body { font-size: calc(1.2rem * var(--peak-font-scale, 1)); line-height: 1.55; color: #9aa0a6; margin: 1.75rem 0 0; max-width: 30rem; }
+
+	.rf__btn { display: inline-flex; align-items: center; gap: 0.9rem; margin-top: 2.5rem; padding: 0.6rem 0.6rem 0.6rem 1.6rem; border-radius: 999px; background: #1c1e22; color: #fff; font-weight: 600; text-decoration: none; }
+	.rf__btn-ico { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: #fff; color: #0d0e11; font-size: 1.05rem; }
+
+	.rf__right { position: relative; overflow: hidden; }
+	.rf__imgwrap { position: absolute; inset: 0; }
+	.rf__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+	.rf__quote { position: absolute; right: 0; bottom: 0; max-width: 22rem; margin: 0; padding: 1.5rem 1.75rem; background: rgba(13,14,17,0.72); backdrop-filter: blur(8px); border-top-left-radius: 18px; }
+	.rf__stars { color: #fff; letter-spacing: 3px; margin-bottom: 0.75rem; }
+	.rf__quote blockquote { margin: 0; font-size: 1.05rem; line-height: 1.5; color: #e8e9eb; }
+
+	/* ---- Animated states (added by JS; no-JS shows everything) ---- */
+	.rf.is-anim .rf__img { clip-path: inset(0 0 0 100%); transform: scale(1.08); animation: rf-wipe 1s cubic-bezier(0.65,0,0.35,1) 0.1s forwards; }
+	.rf.is-anim .rf__reveal { opacity: 0; transform: scale(0.92); }
+	.rf.is-anim.is-typing .rf__type::after { content: "|"; margin-left: 2px; animation: rf-caret 0.7s steps(1) infinite; color: #6b7077; }
+	.rf.is-anim.is-typed .rf__reveal { animation: rf-zoom 0.6s cubic-bezier(0.22,1,0.36,1) both; animation-delay: calc(var(--i, 0) * 0.13s); }
+
+	@keyframes rf-wipe { to { clip-path: inset(0 0 0 0%); transform: scale(1); } }
+	@keyframes rf-zoom { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+	@keyframes rf-caret { 50% { opacity: 0; } }
+
+	@media (prefers-reduced-motion: reduce) { .rf.is-anim .rf__img, .rf.is-anim .rf__reveal { animation: none !important; opacity: 1 !important; transform: none !important; clip-path: none !important; } }
+
+	@media (max-width: 860px) {
+		.rf { grid-template-columns: 1fr; }
+		.rf__right { min-height: 60vh; }
+		.rf__left { order: 2; }
+	}
+</style>
+
+<script>
+	(function () {
+		function typeText(el: HTMLElement, full: string, speed: number, done: () => void) {
+			el.textContent = "";
+			let i = 0;
+			(function step() {
+				el.textContent = full.slice(0, i);
+				if (i < full.length) { i++; setTimeout(step, speed); }
+				else done();
+			})();
+		}
+		function init(root: HTMLElement) {
+			if (root.dataset.rfInit) return;
+			root.dataset.rfInit = "1";
+			if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+			root.classList.add("is-anim");
+			const titleEl = root.querySelector<HTMLElement>(".rf__type");
+			const full = titleEl ? (titleEl.textContent || "").trim() : "";
+			if (titleEl) titleEl.textContent = "";
+			window.setTimeout(function () {
+				if (titleEl && full) {
+					root.classList.add("is-typing");
+					typeText(titleEl, full, 34, function () {
+						root.classList.remove("is-typing");
+						root.classList.add("is-typed");
+					});
+				} else {
+					root.classList.add("is-typed");
+				}
+			}, 950);
+		}
+		function boot() { document.querySelectorAll<HTMLElement>(".rf").forEach(init); }
+		if (document.readyState !== "loading") boot();
+		else document.addEventListener("DOMContentLoaded", boot);
+	})();
+</script>

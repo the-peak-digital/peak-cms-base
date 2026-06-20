@@ -1,0 +1,68 @@
+---
+// Default footer — brand + tagline on the left, menu links on the right.
+interface MenuItem { label: string; url: string; target?: string }
+interface Props { siteTitle?: string; tagline?: string; items?: MenuItem[] }
+const { siteTitle = "Site", tagline = "", items = [] } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="peak-ft">
+	<div class="peak-ft__top">
+		<div class="peak-ft__brand">
+			<span class="peak-ft__logo">{siteTitle}</span>
+			{tagline && <p class="peak-ft__tag">{tagline}</p>}
+		</div>
+		{items.length > 0 && (
+			<nav class="peak-ft__links">
+				{items.map((i) => <a href={i.url} target={i.target}>{i.label}</a>)}
+			</nav>
+		)}
+	</div>
+	<div class="peak-ft__bottom">
+		<p>&copy; {year} {siteTitle}. All rights reserved.</p>
+	</div>
+</footer>
+
+<style>
+	.peak-ft {
+		border-top: 1px solid var(--peak-border, #e2e8f0);
+		background: var(--peak-surface, #f8fafc);
+		margin-top: 3rem;
+	}
+	.peak-ft__top {
+		max-width: var(--peak-wide, 1100px);
+		margin: 0 auto;
+		padding: 2.5rem var(--peak-space-md, 1.5rem);
+		display: flex;
+		justify-content: space-between;
+		gap: 2rem;
+		flex-wrap: wrap;
+	}
+	.peak-ft__logo {
+		font-weight: 800;
+		font-size: 1.15rem;
+	}
+	.peak-ft__tag {
+		color: var(--peak-muted, #64748b);
+		margin: 0.4rem 0 0;
+		max-width: 40ch;
+	}
+	.peak-ft__links {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+	}
+	.peak-ft__links a {
+		color: var(--peak-muted, #475569);
+		text-decoration: none;
+	}
+	.peak-ft__links a:hover { color: var(--peak-primary, #4f46e5); }
+	.peak-ft__bottom {
+		border-top: 1px solid var(--peak-border, #e2e8f0);
+		padding: 1rem var(--peak-space-md, 1.5rem);
+		text-align: center;
+		color: var(--peak-muted, #64748b);
+		font-size: 0.9rem;
+	}
+	.peak-ft__bottom p { margin: 0; max-width: var(--peak-wide,1100px); margin-inline:auto; }
+</style>

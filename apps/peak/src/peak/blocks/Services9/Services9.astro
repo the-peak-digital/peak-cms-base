@@ -1,0 +1,138 @@
+---
+import type { Services9Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Services9Props;
+const { title, cards } = node;
+
+const cardList = Array.isArray(cards) ? cards.filter((c) => c?.image || c?.label) : [];
+---
+
+<PeakSection node={node}>
+	<div class="ps9">
+		<div class="ps9__pin">
+			<div class="ps9__stage">
+				{title && <h2 class="ps9__title">{title}</h2>}
+				<div class="ps9__viewport">
+					<div class="ps9__track">
+						{cardList.map((c, i) => (
+							<article class="ps9__card">
+								<div class="ps9__meta">
+									<span class="ps9__num">{String(i + 1).padStart(2, "0")}</span>
+									{c.label && <span class="ps9__label">{c.label}</span>}
+								</div>
+								<div class="ps9__media">{c.image && <img src={c.image} alt={c.alt ?? c.label ?? ""} loading="lazy" />}</div>
+							</article>
+						))}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</PeakSection>
+
+<style>
+	/* Break out to full viewport width so cards run edge-to-edge. */
+	.ps9 {
+		width: 100vw;
+		margin-inline: calc(50% - 50vw);
+		color: #2b2a27;
+	}
+	.ps9__title {
+		text-align: center;
+		margin: 0 0 clamp(1.5rem, 3vw, 2.5rem);
+		font-family: Georgia, "Times New Roman", serif;
+		font-weight: 500;
+		color: #8a857c;
+		font-size: calc(clamp(2rem, 4vw, 3.2rem) * var(--peak-font-scale, 1));
+	}
+
+	/* Default (no-JS / reduced-motion): a normal horizontal-scroll row. */
+	.ps9__viewport {
+		overflow-x: auto;
+		scrollbar-width: none;
+		padding-block: clamp(1.5rem, 3vw, 2.5rem);
+	}
+	.ps9__viewport::-webkit-scrollbar { display: none; }
+	.ps9__track {
+		display: flex;
+		gap: 4px;
+		width: max-content;
+	}
+	.ps9__card { flex: 0 0 clamp(280px, 26vw, 400px); }
+	.ps9__meta {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+		padding: 0.9rem 0.5rem 1rem;
+		border-top: 1px solid #e7e3da;
+	}
+	.ps9__num { color: #2b2a27; font-weight: 600; font-size: calc(1rem * var(--peak-font-scale, 1)); }
+	.ps9__label { color: #2b2a27; font-size: calc(1.25rem * var(--peak-font-scale, 1)); }
+	.ps9__media { aspect-ratio: 4 / 5; overflow: hidden; background: #ece7e1; }
+	.ps9__media img { width: 100%; height: 100%; object-fit: cover; }
+
+	/* JS-enhanced: pin the stage and let scroll drive the horizontal translate. */
+	.ps9--anim .ps9__stage {
+		position: sticky;
+		top: 0;
+		height: 100vh;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+	.ps9--anim .ps9__viewport { overflow: visible; }
+	.ps9--anim .ps9__track { will-change: transform; }
+	.ps9--anim .ps9__media { aspect-ratio: auto; height: min(58vh, 560px); }
+
+	@media (prefers-reduced-motion: reduce) {
+		.ps9--anim .ps9__stage { position: static; height: auto; overflow: visible; }
+		.ps9--anim .ps9__viewport { overflow-x: auto; }
+		.ps9--anim .ps9__track { transform: none !important; }
+		.ps9--anim .ps9__media { aspect-ratio: 4 / 5; height: auto; }
+	}
+</style>
+
+<script>
+	// Scroll-linked horizontal gallery. The .ps9__pin is made tall (by JS) so the
+	// page has vertical scroll distance; while the sticky stage is pinned, the
+	// track translates left in proportion to scroll progress. Per-instance guard
+	// + astro:page-load. Reduced-motion: leave it as a plain horizontal scroller.
+	function initPs9(root: HTMLElement) {
+		if (root.dataset.ps9Init) return;
+		root.dataset.ps9Init = "1";
+		if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+		const pin = root.querySelector<HTMLElement>(".ps9__pin");
+		const stage = root.querySelector<HTMLElement>(".ps9__stage");
+		const track = root.querySelector<HTMLElement>(".ps9__track");
+		if (!pin || !stage || !track) return;
+		root.classList.add("ps9--anim");
+
+		let distance = 0;
+		const layout = () => {
+			distance = Math.max(0, track.scrollWidth - stage.clientWidth);
+			// Extra vertical scroll = the horizontal distance to travel.
+			pin.style.height = `${window.innerHeight + distance}px`;
+			update();
+		};
+		const update = () => {
+			const total = pin.offsetHeight - window.innerHeight;
+			const scrolled = Math.min(Math.max(-pin.getBoundingClientRect().top, 0), total);
+			const progress = total > 0 ? scrolled / total : 0;
+			track.style.transform = `translate3d(${-distance * progress}px, 0, 0)`;
+		};
+		window.addEventListener("scroll", update, { passive: true });
+		window.addEventListener("resize", layout);
+		// Re-measure once images load (their width affects scrollWidth).
+		root.querySelectorAll("img").forEach((img) => {
+			if (!img.complete) img.addEventListener("load", layout, { once: true });
+		});
+		layout();
+	}
+	function initAllPs9() {
+		document.querySelectorAll<HTMLElement>(".ps9").forEach(initPs9);
+	}
+	document.addEventListener("astro:page-load", initAllPs9);
+	initAllPs9();
+</script>

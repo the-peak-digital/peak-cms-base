@@ -1,0 +1,75 @@
+---
+/**
+ * PeakSection — the shared root every block renders. It centralizes the two
+ * per-block settings that live in defineBlock's common fields:
+ *
+ *   - width    : "contained" (default) | "full-bg" | "full"
+ *   - fontSize : applied as the --peak-font-scale CSS variable
+ *
+ * Because blocks are rendered by Emdash's PortableText (which passes `node`
+ * directly, with no outer wrapper), applying these here — at the block root —
+ * makes them work on real pages, not just the demo renderer.
+ *
+ * Width modes (self-contained, no parent grid needed — uses the full-bleed
+ * margin trick so it works wherever the block is dropped):
+ *   contained -> inner content constrained to --peak-wide (lines up with page)
+ *   full-bg   -> element spans the viewport (background edge-to-edge), inner
+ *                content still constrained to --peak-wide
+ *   full      -> element AND content span the viewport edge-to-edge
+ *
+ * Pass `background` for full-bg colored bands; it sits on the full-width element.
+ */
+import { FONT_SIZE_SCALE } from "./defineBlock";
+
+interface Props {
+	node?: { width?: string; fontSize?: string };
+	/** Extra class on the inner content element. */
+	class?: string;
+	/** Background applied to the (possibly full-width) outer element. */
+	background?: string;
+}
+
+const { node = {}, class: innerClass, background } = Astro.props;
+const width = node.width ?? "contained";
+const scale = FONT_SIZE_SCALE[node.fontSize ?? "md"] ?? 1;
+
+// Background goes on whichever layer is the visible "band":
+//   contained -> the inner column (bg behind content only)
+//   full-bg / full -> the full-width outer element (bg edge-to-edge)
+const bgOnOuter = width === "full-bg" || width === "full";
+const outerStyle = [
+	`--peak-font-scale:${scale}`,
+	bgOnOuter && background ? `background:${background}` : "",
+]
+	.filter(Boolean)
+	.join(";");
+const innerStyle = !bgOnOuter && background ? `background:${background}` : undefined;
+---
+
+<div class:list={["peak-sec", `peak-sec--${width}`]} style={outerStyle}>
+	<div class:list={["peak-sec__inner", innerClass]} style={innerStyle}>
+		<slot />
+	</div>
+</div>
+
+<style is:global>
+	/* contained: normal flow; inner constrained to the page column */
+	.peak-sec--contained > .peak-sec__inner,
+	.peak-sec--full-bg > .peak-sec__inner {
+		max-width: var(--peak-wide, 1180px);
+		margin-inline: auto;
+		padding-inline: var(--peak-gutter, 1.5rem);
+		box-sizing: border-box;
+	}
+	/* full-bg + full: break out to the full viewport width */
+	.peak-sec--full-bg,
+	.peak-sec--full {
+		width: 100vw;
+		margin-inline: calc(50% - 50vw);
+	}
+	/* full: content also spans edge-to-edge (just a little breathing room) */
+	.peak-sec--full > .peak-sec__inner {
+		padding-inline: var(--peak-gutter, 1.5rem);
+		box-sizing: border-box;
+	}
+</style>

@@ -1,0 +1,117 @@
+---
+import type { Hero13Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero13Props;
+const {
+	title, body, primaryText, primaryUrl, secondaryText, secondaryUrl, image, imageAlt,
+	avatars, trustText, logos, cardLabel, cardText, cardImage, cardStat, cardStatLabel, cardUrl, accent = "#5fc99a",
+} = node;
+const avatarList = Array.isArray(avatars) ? avatars.filter((a) => a?.url).slice(0, 5) : [];
+const logoList = Array.isArray(logos) ? logos.filter((l) => l?.url) : [];
+const secNode = { ...node, width: (node as any).width || "full" };
+---
+
+<PeakSection node={secNode}>
+	<div class="hx">
+		{image && <img class="hx__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
+		<div class="hx__inner">
+			<div class="hx__content">
+				<div class="hx__top">
+					{title && <h1 class="hx__title">{title}</h1>}
+					{body && <p class="hx__body">{body}</p>}
+					<div class="hx__actions">
+						{primaryText && <a class="hx__btn" href={primaryUrl} style={`background:${accent}`}>{primaryText} <span class="hx__dot"></span></a>}
+						{secondaryText && <a class="hx__link" href={secondaryUrl}>{secondaryText} →</a>}
+					</div>
+				</div>
+				<div class="hx__proof">
+					{avatarList.length > 0 && (
+						<div class="hx__avatars">
+							{avatarList.map((a) => <img src={a.url} alt="" />)}
+						</div>
+					)}
+					{trustText && <span class="hx__trust">{trustText}</span>}
+					{logoList.length > 0 && (
+						<div class="hx__logos">
+							{logoList.map((l) => <img src={l.url} alt="" />)}
+						</div>
+					)}
+				</div>
+			</div>
+
+			{(cardText || cardImage) && (
+				<a class="hx__card" href={cardUrl}>
+					{cardImage && <img class="hx__card-img" src={cardImage} alt="" />}
+					<div class="hx__card-body">
+						{cardLabel && <span class="hx__card-label">{cardLabel}</span>}
+						{cardText && <p class="hx__card-text">{cardText}</p>}
+						<div class="hx__card-stat">
+							{cardStat && <span class="hx__card-stat-value">{cardStat}</span>}
+							{cardStatLabel && <span class="hx__card-stat-label">{cardStatLabel}</span>}
+							<span class="hx__card-arrow">→</span>
+						</div>
+					</div>
+				</a>
+			)}
+		</div>
+	</div>
+</PeakSection>
+
+<style>
+	.hx { position: relative; min-height: clamp(560px, 92vh, 940px); overflow: hidden; background: #fff; }
+	/* Entrance: image expands from a small centered square to full-bleed. */
+	.hx__bg {
+		position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+		animation: hx-expand 1.3s cubic-bezier(0.7, 0, 0.2, 1) 0.2s both;
+	}
+	@keyframes hx-expand {
+		from { clip-path: inset(40% 45% 40% 45% round 28px); }
+		to { clip-path: inset(0% 0% 0% 0% round 0px); }
+	}
+	.hx__inner {
+		position: relative; max-width: var(--peak-wide, 1180px); margin: 0 auto; min-height: inherit;
+		padding: clamp(2.5rem, 5vw, 4.5rem) var(--peak-gutter, 1.5rem);
+		display: flex; flex-direction: column; justify-content: space-between; gap: 2.5rem; color: #fff;
+	}
+	/* Content fades up after the image finishes expanding. */
+	.hx__content { display: flex; flex-direction: column; justify-content: space-between; flex: 1; gap: 3rem; opacity: 0; animation: hx-in 0.9s ease 1.45s both; }
+	.hx__card { opacity: 0; animation: hx-in 0.9s ease 1.7s both; }
+	@keyframes hx-in { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+	@media (prefers-reduced-motion: reduce) {
+		.hx__bg, .hx__content, .hx__card { animation: none; opacity: 1; clip-path: none; }
+	}
+
+	.hx__title { font-size: calc(clamp(2.5rem, 5.5vw, 4.5rem) * var(--peak-font-scale, 1)); font-weight: 600; line-height: 1.05; margin: 0 0 1.5rem; max-width: 16ch; }
+	.hx__body { font-size: calc(1.2rem * var(--peak-font-scale, 1)); line-height: 1.5; max-width: 24rem; margin: 0 0 2rem; opacity: 0.95; }
+	.hx__actions { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+	.hx__btn { display: inline-flex; align-items: center; gap: 0.6rem; color: #06321f; padding: 0.85rem 1.5rem; border-radius: 999px; font-weight: 600; text-decoration: none; }
+	.hx__dot { width: 8px; height: 8px; border-radius: 50%; background: #06321f; }
+	.hx__link { color: #fff; text-decoration: none; font-weight: 600; }
+	.hx__proof { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+	.hx__avatars { display: flex; }
+	.hx__avatars img { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #fff; object-fit: cover; margin-left: -8px; }
+	.hx__avatars img:first-child { margin-left: 0; }
+	.hx__trust { font-size: 0.9rem; }
+	.hx__logos { display: flex; align-items: center; gap: 1.75rem; margin-left: auto; flex-wrap: wrap; }
+	.hx__logos img { height: 22px; width: auto; object-fit: contain; opacity: 0.9; filter: brightness(0) invert(1); }
+
+	/* Floating case-study card */
+	.hx__card {
+		position: absolute; right: var(--peak-gutter, 1.5rem); bottom: clamp(1.5rem, 4vw, 3rem);
+		display: flex; gap: 0; background: #f4f1ec; color: #1a1a1a; border-radius: 22px; padding: 10px; max-width: 440px; text-decoration: none; box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+	}
+	.hx__card-img { width: 130px; height: 100%; min-height: 150px; object-fit: cover; border-radius: 16px; flex: 0 0 auto; }
+	.hx__card-body { padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.6rem; }
+	.hx__card-label { align-self: flex-start; background: #1a1a1a; color: #fff; font-size: 0.75rem; font-weight: 600; padding: 0.3rem 0.7rem; border-radius: 999px; }
+	.hx__card-text { font-size: 0.85rem; line-height: 1.4; margin: 0; }
+	.hx__card-stat { display: flex; align-items: center; gap: 0.6rem; margin-top: auto; border-top: 1px solid #e3ddd4; padding-top: 0.6rem; }
+	.hx__card-stat-value { font-size: 1.4rem; font-weight: 700; }
+	.hx__card-stat-label { font-size: 0.72rem; color: #666; line-height: 1.2; }
+	.hx__card-arrow { margin-left: auto; }
+
+	@media (max-width: 900px) {
+		.hx__card { position: relative; right: auto; bottom: auto; }
+		.hx__logos { margin-left: 0; }
+	}
+</style>

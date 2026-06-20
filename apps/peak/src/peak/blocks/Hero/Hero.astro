@@ -1,0 +1,183 @@
+---
+import type { HeroProps } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as HeroProps;
+const {
+	eyebrow,
+	title,
+	titleEmphasis,
+	body,
+	buttonText,
+	buttonUrl,
+	avatars,
+	rating,
+	reviewsText,
+	reviewsUrl,
+	image1,
+	image1Alt,
+	statTitle,
+	statDate,
+	amount,
+	amountLabel,
+	amountAvatar,
+	image2,
+	image2Alt,
+} = node;
+
+const avatarList = Array.isArray(avatars) ? avatars.filter((a) => a?.url).slice(0, 4) : [];
+const hasCta = Boolean(buttonText && buttonUrl);
+const hasProof = avatarList.length > 0 || rating || reviewsText;
+---
+
+<PeakSection node={node}>
+	<div class="hb">
+	<div class="hb__left">
+		{eyebrow && <p class="hb__eyebrow"><span class="hb__dash"></span>{eyebrow}</p>}
+		{(title || titleEmphasis) && (
+			<h1 class="hb__title">
+				{title}
+				{titleEmphasis && <em class="hb__em">{titleEmphasis}</em>}
+			</h1>
+		)}
+		{body && <p class="hb__body">{body}</p>}
+		<div class="hb__actions">
+			{hasCta && <a class="hb__btn" href={buttonUrl}>{buttonText}</a>}
+			{hasProof && (
+				<div class="hb__proof">
+					{avatarList.length > 0 && (
+						<div class="hb__avatars">
+							{avatarList.map((a) => <img src={a.url} alt={a.alt ?? ""} loading="lazy" />)}
+						</div>
+					)}
+					<div class="hb__proof-text">
+						{rating && <span class="hb__stars">★★★★★ <strong>{rating}</strong></span>}
+						{reviewsText && (
+							reviewsUrl ? <a href={reviewsUrl} class="hb__reviews">{reviewsText}</a> : <span class="hb__reviews">{reviewsText}</span>
+						)}
+					</div>
+				</div>
+			)}
+		</div>
+	</div>
+
+	<div class="hb__bento">
+		<div class="hb__cell hb__img">
+			{image1 && <img src={image1} alt={image1Alt ?? ""} loading="eager" />}
+		</div>
+		<div class="hb__cell hb__stat">
+			<span class="hb__check" aria-hidden="true">✓</span>
+			{statTitle && <p class="hb__stat-title">{statTitle}</p>}
+			{statDate && <p class="hb__stat-date">{statDate}</p>}
+		</div>
+		<div class="hb__cell hb__amount">
+			{amount && <p class="hb__amount-val">{amount}</p>}
+			{amountLabel && <p class="hb__amount-label">{amountLabel}</p>}
+			{amountAvatar && <img class="hb__amount-avatar" src={amountAvatar} alt="" loading="lazy" />}
+		</div>
+		<div class="hb__cell hb__img">
+			{image2 && <img src={image2} alt={image2Alt ?? ""} loading="lazy" />}
+		</div>
+	</div>
+	</div>
+</PeakSection>
+
+<style>
+	.hb {
+		--hb-dark: #1f3d2f;
+		--hb-cream: #ece8d9;
+		padding-block: var(--peak-space-2xl, 4rem);
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 3.5rem;
+		align-items: center;
+	}
+
+	/* Left */
+	.hb__eyebrow {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		color: var(--hb-dark);
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		font-size: 0.85rem;
+		margin: 0 0 1.25rem;
+	}
+	.hb__dash { width: 28px; height: 2px; background: var(--hb-dark); display: inline-block; }
+	.hb__title {
+		font-size: calc(clamp(2.5rem, 5vw, 4.25rem) * var(--peak-font-scale, 1));
+		line-height: 1.05;
+		letter-spacing: -0.02em;
+		font-weight: 700;
+		margin: 0 0 1.5rem;
+		color: var(--peak-text, #0f172a);
+	}
+	.hb__em { display: block; font-style: italic; font-weight: 700; }
+	.hb__body {
+		font-size: calc(1.15rem * var(--peak-font-scale, 1));
+		line-height: 1.6;
+		color: var(--peak-muted, #64748b);
+		max-width: 30rem;
+		margin: 0 0 2rem;
+	}
+	.hb__actions { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+	.hb__btn {
+		background: var(--hb-dark);
+		color: #fff;
+		padding: 1rem 1.75rem;
+		border-radius: 999px;
+		font-weight: 600;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+	.hb__proof { display: flex; align-items: center; gap: 0.75rem; }
+	.hb__avatars { display: flex; }
+	.hb__avatars img {
+		width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
+		border: 2px solid #fff; margin-left: -10px;
+	}
+	.hb__avatars img:first-child { margin-left: 0; }
+	.hb__stars { display: block; color: #f59e0b; font-size: 0.9rem; }
+	.hb__stars strong { color: var(--peak-text, #0f172a); margin-left: 0.25rem; }
+	.hb__reviews { font-size: 0.85rem; color: var(--peak-muted, #64748b); }
+
+	/* Right bento */
+	.hb__bento {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		grid-auto-rows: 1fr;
+		gap: 1rem;
+		aspect-ratio: 1 / 1;
+	}
+	.hb__cell { border-radius: 28px; overflow: hidden; position: relative; }
+	.hb__img { background: #f1f5f9; }
+	.hb__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+	.hb__stat, .hb__amount {
+		border-radius: 56px;
+		padding: 2rem 1.5rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+	}
+	.hb__stat { background: var(--hb-cream); }
+	.hb__check {
+		width: 44px; height: 44px; border-radius: 50%;
+		background: var(--hb-dark); color: #fff;
+		display: flex; align-items: center; justify-content: center;
+		font-size: 1.1rem; margin-bottom: 1rem;
+	}
+	.hb__stat-title { font-size: 1.35rem; font-weight: 600; color: var(--hb-dark); margin: 0; line-height: 1.2; }
+	.hb__stat-date { font-size: 0.85rem; font-style: italic; color: #6b7280; margin: 0.5rem 0 0; }
+	.hb__amount { background: var(--hb-dark); color: #fff; }
+	.hb__amount-val { font-size: 2rem; font-weight: 700; margin: 0; }
+	.hb__amount-label { font-size: 0.95rem; font-style: italic; opacity: 0.85; margin: 0.25rem 0 1rem; }
+	.hb__amount-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.25); }
+
+	@media (max-width: 900px) {
+		.hb { grid-template-columns: 1fr; gap: 2.5rem; }
+		.hb__bento { aspect-ratio: auto; grid-auto-rows: 180px; }
+	}
+</style>

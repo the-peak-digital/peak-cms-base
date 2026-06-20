@@ -1,0 +1,140 @@
+---
+import type { Services10Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Services10Props;
+const { title, taglineLead, taglineAccent, items, accent = "#c2f53c", bg = "#163026" } = node;
+
+const list = (Array.isArray(items) ? items : []).filter((s) => s?.title || s?.image);
+const splitTags = (s?: string) =>
+	(s ?? "")
+		.split(/[,\n]/)
+		.map((t) => t.trim())
+		.filter(Boolean);
+---
+
+<PeakSection node={node}>
+	<div class="ps10" style={`--accent:${accent}; --bg:${bg}`}>
+		<div class="ps10__inner">
+			<header class="ps10__head">
+				{title && <h2 class="ps10__title">{title}</h2>}
+				{(taglineLead || taglineAccent) && (
+					<p class="ps10__tagline">
+						{taglineLead}{taglineLead && " "}
+						{taglineAccent && <span class="ps10__tagline-accent">{taglineAccent}</span>}
+					</p>
+				)}
+			</header>
+
+			<div class="ps10__list">
+				{list.map((s, i) => (
+					<article class="ps10__item" style={`--i:${i}`}>
+						<div class="ps10__img">{s.image && <img src={s.image} alt={s.alt ?? s.title ?? ""} loading="lazy" />}</div>
+						<div class="ps10__content">
+							<h3 class="ps10__item-title">{s.title}</h3>
+							{s.description && <p class="ps10__desc">{s.description}</p>}
+							{splitTags(s.tags).length > 0 && (
+								<p class="ps10__tags">
+									{splitTags(s.tags).map((t) => (
+										<span class="ps10__tag">#{t}</span>
+									))}
+								</p>
+							)}
+						</div>
+						<span class="ps10__num">{String(i + 1).padStart(2, "0")}</span>
+					</article>
+				))}
+			</div>
+		</div>
+	</div>
+</PeakSection>
+
+<style>
+	.ps10 {
+		/* Full-bleed dark band. */
+		width: 100vw;
+		margin-inline: calc(50% - 50vw);
+		background: var(--bg);
+		color: #f3f1ea;
+		--head: clamp(84px, 13vh, 128px);
+		--strip: clamp(64px, 9vh, 92px);
+	}
+	.ps10__inner { padding: 0 clamp(1.5rem, 5vw, 5rem) clamp(3rem, 6vw, 6rem); }
+
+	/* Sticky header. */
+	.ps10__head {
+		position: sticky;
+		top: 0;
+		z-index: 20;
+		background: var(--bg);
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 2rem;
+		min-height: var(--head);
+		padding-top: clamp(1.25rem, 3vw, 2.5rem);
+	}
+	.ps10__title {
+		margin: 0;
+		font-family: "Arial Narrow", "Helvetica Neue", sans-serif;
+		font-stretch: condensed;
+		font-weight: 700;
+		letter-spacing: 0.01em;
+		line-height: 0.9;
+		font-size: calc(clamp(2.6rem, 6vw, 5rem) * var(--peak-font-scale, 1));
+	}
+	.ps10__tagline { margin: 0.4rem 0 0; max-width: 26ch; text-align: right; color: #f3f1ea; font-size: calc(1.05rem * var(--peak-font-scale, 1)); line-height: 1.4; }
+	.ps10__tagline-accent { color: var(--accent); }
+
+	/* Sticky-stacking rows. Each pins a strip lower than the last, so passed rows
+	   collapse to a thin strip (image top + title + number) while the current row
+	   stays expanded. Opaque bg so later rows cover earlier ones. */
+	.ps10__item {
+		position: sticky;
+		top: calc(var(--head) + var(--strip) * var(--i));
+		display: grid;
+		grid-template-columns: clamp(220px, 26%, 340px) 1fr auto;
+		gap: clamp(1.5rem, 4vw, 4rem);
+		align-items: start;
+		min-height: clamp(300px, 42vh, 420px);
+		padding-top: clamp(1rem, 2vw, 1.75rem);
+		background: var(--bg);
+		border-top: 1px solid rgba(243, 241, 234, 0.16);
+	}
+	.ps10__img {
+		grid-row: 1 / -1;
+		align-self: stretch;
+		min-height: clamp(220px, 32vh, 320px);
+		overflow: hidden;
+		border-radius: 2px;
+		background: #0f211b;
+	}
+	.ps10__img img { width: 100%; height: 100%; object-fit: cover; }
+	.ps10__content { padding-top: 0.25rem; max-width: 46ch; }
+	.ps10__item-title {
+		margin: 0;
+		font-family: "Arial Narrow", "Helvetica Neue", sans-serif;
+		font-stretch: condensed;
+		font-weight: 700;
+		letter-spacing: 0.01em;
+		font-size: calc(clamp(1.8rem, 2.8vw, 2.6rem) * var(--peak-font-scale, 1));
+	}
+	.ps10__desc { margin: 1.25rem 0 0; color: #cdd6cf; font-size: calc(1.02rem * var(--peak-font-scale, 1)); line-height: 1.55; }
+	.ps10__tags { margin: 1.5rem 0 0; display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; color: #aeb7af; font-size: 0.95rem; }
+	.ps10__num {
+		justify-self: end;
+		font-family: "Arial Narrow", "Helvetica Neue", sans-serif;
+		font-stretch: condensed;
+		font-weight: 700;
+		line-height: 1;
+		color: #f3f1ea;
+		font-size: calc(clamp(1.8rem, 2.6vw, 2.4rem) * var(--peak-font-scale, 1));
+	}
+
+	@media (max-width: 760px) {
+		.ps10__head { flex-direction: column; gap: 0.75rem; }
+		.ps10__tagline { text-align: left; }
+		.ps10__item { grid-template-columns: 1fr auto; }
+		.ps10__img { grid-row: auto; grid-column: 1 / -1; height: 200px; }
+	}
+</style>

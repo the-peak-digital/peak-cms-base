@@ -1,0 +1,87 @@
+---
+/**
+ * BaseLayout — site chrome. Fetches site settings + the chosen menus and renders
+ * the selected Header and Footer variants around the page content (<slot/>).
+ *
+ * Header/footer are picked per page via props (defaults to "default"). Variants
+ * come from the auto-wired layout registry, so adding a header/footer file makes
+ * it selectable. Also defines the global --peak-* theme tokens every block uses.
+ */
+import { getMenu, getSiteSettings } from "emdash";
+import { headers, footers } from "./registry";
+
+interface Props {
+	title?: string;
+	description?: string;
+	header?: string; // variant key, e.g. "default" | "centered"
+	footer?: string; // variant key, e.g. "default" | "simple"
+	headerMenu?: string; // menu name to load for the header
+	footerMenu?: string; // menu name to load for the footer
+}
+
+const {
+	title,
+	description,
+	header = "default",
+	footer = "default",
+	headerMenu = "primary",
+	footerMenu = "footer",
+} = Astro.props;
+
+const settings = await getSiteSettings();
+const siteTitle = settings?.title || "Peak";
+const tagline = settings?.tagline || "";
+const fullTitle = title ? `${title} — ${siteTitle}` : siteTitle;
+
+const [headerNav, footerNav] = await Promise.all([getMenu(headerMenu), getMenu(footerMenu)]);
+const headerItems = headerNav?.items ?? [];
+const footerItems = footerNav?.items ?? [];
+
+const Header = (headers[header] ?? headers.default) as any;
+const Footer = (footers[footer] ?? footers.default) as any;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>{fullTitle}</title>
+		{description && <meta name="description" content={description} />}
+	</head>
+	<body>
+		{Header && <Header siteTitle={siteTitle} items={headerItems} />}
+		<main>
+			<slot />
+		</main>
+		{Footer && <Footer siteTitle={siteTitle} tagline={tagline} items={footerItems} />}
+
+		<style is:global>
+			:root {
+				--peak-bg: #ffffff;
+				--peak-text: #0f172a;
+				--peak-muted: #64748b;
+				--peak-border: #e2e8f0;
+				--peak-surface: #f8fafc;
+				--peak-primary: #4f46e5;
+				--peak-radius: 0.5rem;
+				--peak-wide: 1180px;
+				--peak-gutter: 1.5rem;
+				--peak-space-sm: 1rem;
+				--peak-space-md: 1.5rem;
+				--peak-space-lg: 2rem;
+				--peak-space-xl: 3rem;
+				--peak-space-2xl: 4rem;
+			}
+			* { box-sizing: border-box; }
+			body {
+				margin: 0;
+				font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+				color: var(--peak-text);
+				background: var(--peak-bg);
+				/* Contain the full-bleed width trick so it never adds a scrollbar. */
+				overflow-x: hidden;
+			}
+		</style>
+	</body>
+</html>

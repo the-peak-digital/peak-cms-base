@@ -1,0 +1,72 @@
+---
+import type { Hero24Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero24Props;
+const { features, titleTop, titleEmphasis, offer, buttonText, buttonUrl, ratingText, rating = 5, image, imageAlt, bg = "#f6ece0", accent = "#1e2a5a" } = node;
+const featureList = Array.isArray(features) ? features.filter((f) => f?.label) : [];
+const stars = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+
+// 4 line icons, cycled by index, to decorate the trust bar
+const icons = [
+	'<path fill="none" stroke="currentColor" stroke-width="1.6" d="M4 9h16v10H4zM4 9l1.5-4h13L20 9M8 9v3h8V9M8 19v-4h4v4"/>',
+	'<circle cx="12" cy="9" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" d="M9 13l-1.5 7 4.5-2.5L16.5 20 15 13M10 9l1.3 1.3L14 7.5"/>',
+	'<rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" d="M9 3.5h6V6H9zM8.5 13l2 2 4-4"/>',
+	'<path fill="none" stroke="currentColor" stroke-width="1.6" d="M12 2l2 4 2-1-1 4 3 1-3 2 2 4-4-2-3 3-1-4-3 0 2-3-2-3 4 0 1-4 2 2z"/>',
+];
+---
+
+<PeakSection node={node}>
+	<div class="ps" style={`--bg:${bg}; --accent:${accent}`}>
+		{featureList.length > 0 && (
+			<div class="ps__bar">
+				{featureList.map((f, i) => (
+					<span class="ps__feat">
+						<svg class="ps__feat-ico" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" set:html={icons[i % icons.length]} />
+						{f.label}
+					</span>
+				))}
+			</div>
+		)}
+
+		<div class="ps__main">
+			<div class="ps__copy">
+				{(titleTop || titleEmphasis) && (
+					<h1 class="ps__title">{titleTop} {titleEmphasis && <em>{titleEmphasis}</em>}</h1>
+				)}
+				{offer && <p class="ps__offer">{offer}</p>}
+				{buttonText && <a class="ps__btn" href={buttonUrl}>{buttonText}</a>}
+				{(ratingText || stars > 0) && (
+					<p class="ps__rating">{ratingText} <span class="ps__stars" aria-label={`${stars} out of 5`}>{"★".repeat(stars)}</span></p>
+				)}
+			</div>
+			<div class="ps__media">
+				{image && <img src={image} alt={imageAlt ?? ""} loading="eager" />}
+			</div>
+		</div>
+	</div>
+</PeakSection>
+
+<style>
+	.ps { background: var(--bg); color: #1c1d22; }
+	.ps__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-around; gap: 1rem 2rem; padding: 1.1rem clamp(1.5rem, 4vw, 3rem); border-bottom: 1px solid rgba(0,0,0,0.08); }
+	.ps__feat { display: inline-flex; align-items: center; gap: 0.7rem; font-size: calc(1.15rem * var(--peak-font-scale, 1)); font-weight: 600; }
+	.ps__feat-ico { flex: 0 0 auto; }
+
+	.ps__main { display: grid; grid-template-columns: 1fr 1.35fr; align-items: stretch; min-height: clamp(460px, 64vh, 720px); }
+	.ps__copy { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: clamp(2rem, 5vw, 4rem); }
+	.ps__title { font-family: Georgia, "Times New Roman", serif; font-size: calc(clamp(3rem, 6vw, 5rem) * var(--peak-font-scale, 1)); font-weight: 600; line-height: 1.0; margin: 0; }
+	.ps__title em { display: block; font-style: italic; }
+	.ps__offer { font-size: calc(1.5rem * var(--peak-font-scale, 1)); font-weight: 600; letter-spacing: 0.02em; margin: 1.75rem 0 0; }
+	.ps__btn { margin-top: 1.5rem; padding: 1.05rem 2.5rem; border-radius: 8px; background: var(--accent); color: #fff; font-weight: 600; font-size: 1.1rem; text-decoration: none; }
+	.ps__rating { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0; }
+	.ps__stars { letter-spacing: 1px; }
+
+	.ps__media { position: relative; overflow: hidden; }
+	.ps__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+	@media (max-width: 880px) {
+		.ps__main { grid-template-columns: 1fr; }
+		.ps__media { min-height: 320px; }
+	}
+</style>

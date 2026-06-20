@@ -1,0 +1,101 @@
+---
+import type { Hero23Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero23Props;
+const {
+	image, imageAlt, eyebrow, title, offer, hoursLabel, hoursStatus, hoursNote,
+	primaryText, primaryUrl, secondaryText, secondaryUrl,
+	formTitle, messagePlaceholder, submitText, formAction = "#", formBg = "#ead9bf",
+} = node;
+const secNode = { ...node, width: (node as any).width || "full" };
+---
+
+<PeakSection node={secNode}>
+	<div class="kf" style={`--form-bg:${formBg}`}>
+		{image && <img class="kf__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
+		<div class="kf__shade"></div>
+
+		<div class="kf__grid">
+			<div class="kf__copy">
+				{eyebrow && <p class="kf__eyebrow">{eyebrow}</p>}
+				{title && <h1 class="kf__title">{title}</h1>}
+				{offer && (
+					<p class="kf__offer">
+						<svg class="kf__gem" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="#f2b705" d="M6 3h12l4 6-10 12L2 9l4-6z"/><path fill="#ffd84d" d="M12 21 2 9h20L12 21z"/></svg>
+						{offer}
+					</p>
+				)}
+				{(hoursLabel || hoursStatus || hoursNote) && (
+					<p class="kf__hours">{hoursLabel} <strong class="kf__hours-status">{hoursStatus}</strong> {hoursNote}</p>
+				)}
+				<div class="kf__actions">
+					{primaryText && (
+						<a class="kf__btn kf__btn--primary" href={primaryUrl}>{primaryText}
+							<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 6l6 6-6 6M13 6l6 6-6 6"/></svg>
+						</a>
+					)}
+					{secondaryText && (
+						<a class="kf__btn kf__btn--ghost" href={secondaryUrl}>
+							<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2" fill="none" stroke="#fff" stroke-width="2"/><path stroke="#fff" stroke-width="2" d="M3 10h18"/></svg>
+							{secondaryText}
+						</a>
+					)}
+				</div>
+			</div>
+
+			<form class="kf__form" action={formAction} method="post">
+				{formTitle && <h2 class="kf__form-title">{formTitle}</h2>}
+				<input class="kf__input" type="text" name="name" placeholder="Full Name*" required />
+				<label class="kf__field">
+					<svg class="kf__field-ico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="#9aa0a6" stroke-width="2"/><path d="M3 7l9 6 9-6" fill="none" stroke="#9aa0a6" stroke-width="2"/></svg>
+					<input class="kf__input kf__input--icon" type="email" name="email" placeholder="Email*" required />
+				</label>
+				<label class="kf__field">
+					<span class="kf__flag">+1 ▾</span>
+					<input class="kf__input kf__input--phone" type="tel" name="phone" placeholder="Phone*" required />
+				</label>
+				<input class="kf__input" type="text" name="zip" placeholder="Zip code*" required />
+				<textarea class="kf__input kf__textarea" name="message" rows="3" placeholder={messagePlaceholder}></textarea>
+				<button class="kf__submit" type="submit">{submitText}</button>
+			</form>
+		</div>
+	</div>
+</PeakSection>
+
+<style>
+	.kf { position: relative; overflow: hidden; min-height: clamp(680px, 96vh, 1000px); }
+	.kf__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+	.kf__shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(30,28,26,0.45) 0%, rgba(30,28,26,0.12) 45%, rgba(30,28,26,0) 70%); }
+
+	.kf__grid { position: relative; display: grid; grid-template-columns: 1.3fr 0.9fr; align-items: center; gap: clamp(1.5rem, 4vw, 3.5rem); max-width: var(--peak-wide, 1180px); margin: 0 auto; padding: clamp(2rem, 5vw, 4rem) var(--peak-gutter, 1.5rem); min-height: inherit; }
+
+	.kf__copy { color: #fff; }
+	.kf__eyebrow { font-size: calc(1.4rem * var(--peak-font-scale, 1)); font-weight: 700; margin: 0 0 1.25rem; text-shadow: 0 1px 10px rgba(0,0,0,0.3); }
+	.kf__title { font-size: calc(clamp(2.4rem, 5vw, 4.25rem) * var(--peak-font-scale, 1)); font-weight: 800; line-height: 1.06; margin: 0; text-shadow: 0 2px 16px rgba(0,0,0,0.35); }
+	.kf__offer { display: flex; align-items: center; gap: 0.65rem; font-size: calc(1.5rem * var(--peak-font-scale, 1)); font-weight: 700; margin: 1.75rem 0 0; text-shadow: 0 1px 10px rgba(0,0,0,0.3); }
+	.kf__hours { font-size: calc(1.25rem * var(--peak-font-scale, 1)); margin: 1rem 0 0; text-shadow: 0 1px 10px rgba(0,0,0,0.3); }
+	.kf__hours-status { color: #ff5a4d; }
+
+	.kf__actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2.5rem; }
+	.kf__btn { display: inline-flex; align-items: center; gap: 0.6rem; padding: 1.05rem 2rem; border-radius: 999px; font-weight: 700; text-decoration: none; }
+	.kf__btn--primary { background: #fff; color: #1a1a1a; }
+	.kf__btn--ghost { border: 1.5px solid rgba(255,255,255,0.7); color: #fff; }
+
+	.kf__form { background: var(--form-bg); border-radius: 14px; padding: clamp(1.5rem, 2.5vw, 2.25rem); display: flex; flex-direction: column; gap: 0.85rem; box-shadow: 0 30px 60px rgba(0,0,0,0.25); }
+	.kf__form-title { font-size: 1.6rem; font-weight: 800; line-height: 1.15; color: #1f2430; margin: 0 0 0.5rem; }
+	.kf__input { width: 100%; padding: 0.95rem 1rem; border: 1px solid #dcd2c2; border-radius: 8px; background: #fff; font-size: 1rem; color: #1f2430; font-family: inherit; }
+	.kf__input::placeholder { color: #9aa0a6; }
+	.kf__field { position: relative; display: flex; align-items: center; }
+	.kf__field-ico { position: absolute; left: 0.9rem; }
+	.kf__input--icon { padding-left: 2.5rem; }
+	.kf__flag { position: absolute; left: 0.75rem; color: #1f2430; font-size: 0.95rem; pointer-events: none; }
+	.kf__input--phone { padding-left: 3.25rem; }
+	.kf__textarea { resize: vertical; min-height: 84px; }
+	.kf__submit { margin-top: 0.5rem; padding: 1rem; border: 0; border-radius: 8px; background: #111; color: #fff; font-size: 1.05rem; font-weight: 600; cursor: pointer; }
+
+	@media (max-width: 920px) {
+		.kf__grid { grid-template-columns: 1fr; }
+		.kf__shade { background: linear-gradient(180deg, rgba(30,28,26,0.5), rgba(30,28,26,0.2)); }
+	}
+</style>

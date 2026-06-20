@@ -1,0 +1,28 @@
+---
+/**
+ * Renders the chosen Section's CURRENT content (live reference). The section's
+ * blocks render through the same component map as the page, so a Global Section
+ * looks identical to placing those blocks directly — but it stays synced to one
+ * source. No PeakSection wrapper here: the section's own blocks each bring their
+ * width / text-size.
+ */
+import { getSection } from "emdash";
+import { PortableText } from "emdash/ui";
+import { blockComponents } from "../registry";
+import type { GlobalSectionProps } from "./schema";
+
+const node = (Astro.props.node ?? {}) as GlobalSectionProps;
+const slug = node.section;
+const section = slug ? await getSection(slug) : null;
+const content = section?.content ?? [];
+---
+
+{content.length > 0 ? (
+	<PortableText value={content} components={{ type: blockComponents as any }} />
+) : (
+	import.meta.env.DEV && (
+		<div style="padding:1rem;border:1px dashed #cbd5e1;color:#64748b;text-align:center">
+			Global Section — {slug ? `section "${slug}" not found or empty` : "pick a section"}
+		</div>
+	)
+)}

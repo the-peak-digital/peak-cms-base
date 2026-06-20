@@ -1,0 +1,136 @@
+---
+import type { Services13Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Services13Props;
+const { badge, title, items, bg = "#0e0e0e" } = node;
+
+const list = (Array.isArray(items) ? items : []).filter((s) => s?.title || s?.image);
+const splitFeatures = (s?: string) =>
+	(s ?? "")
+		.split(/[,\n]/)
+		.map((f) => f.trim())
+		.filter(Boolean);
+---
+
+<PeakSection node={node}>
+	<div class="ps13" style={`--bg:${bg}`}>
+		<header class="ps13__head">
+			{badge && <span class="ps13__badge">{badge}</span>}
+			{title && <h2 class="ps13__title">{title}</h2>}
+		</header>
+
+		<div class="ps13__stack">
+			{list.map((s, i) => (
+				<section class="ps13__panel">
+					{s.image && <img class="ps13__img" src={s.image} alt={s.alt ?? s.title ?? ""} loading="lazy" />}
+					<span class="ps13__num">/ {String(i + 1).padStart(2, "0")}</span>
+					{s.title && <h3 class="ps13__panel-title">{s.title}</h3>}
+					{s.description && <p class="ps13__desc">{s.description}</p>}
+					{splitFeatures(s.features).length > 0 && (
+						<div class="ps13__chips">
+							{splitFeatures(s.features).map((f) => (
+								<span class="ps13__chip">{f}</span>
+							))}
+						</div>
+					)}
+				</section>
+			))}
+		</div>
+	</div>
+</PeakSection>
+
+<style>
+	.ps13 {
+		/* Full-bleed dark band. */
+		width: 100vw;
+		margin-inline: calc(50% - 50vw);
+		background: var(--bg);
+		color: #fff;
+		padding-bottom: 8vh;
+	}
+	.ps13__head { text-align: center; padding: clamp(2rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3rem) clamp(1.5rem, 3vw, 2.5rem); }
+	.ps13__badge {
+		display: inline-block;
+		padding: 0.4rem 0.9rem;
+		background: rgba(255, 255, 255, 0.1);
+		border-radius: 6px;
+		font-size: 0.8rem;
+		font-weight: 600;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+	}
+	.ps13__title {
+		margin: 1.25rem auto 0;
+		max-width: 18ch;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		line-height: 1.1;
+		font-size: calc(clamp(2rem, 4.5vw, 3.4rem) * var(--peak-font-scale, 1));
+	}
+
+	/* Sticky-stacking full-screen panels. Each pins at the same top and is opaque,
+	   so the next panel rises up and covers the previous one as you scroll. */
+	.ps13__stack { padding-inline: clamp(0.75rem, 2vw, 2rem); }
+	.ps13__panel {
+		position: sticky;
+		top: 6vh;
+		height: 86vh;
+		overflow: hidden;
+		border-radius: 18px;
+		padding: clamp(1.75rem, 4vw, 3.5rem);
+		color: #fff;
+		isolation: isolate;
+		margin-bottom: 4vh;
+	}
+	.ps13__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+	.ps13__panel::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: linear-gradient(105deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.05) 45%, rgba(0, 0, 0, 0.25) 100%);
+	}
+	.ps13__num { font-weight: 700; font-size: calc(1.1rem * var(--peak-font-scale, 1)); letter-spacing: 0.04em; }
+	.ps13__panel-title {
+		margin: 0.75rem 0 0;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		font-size: calc(clamp(2.2rem, 4.5vw, 3.6rem) * var(--peak-font-scale, 1));
+	}
+	.ps13__desc {
+		position: absolute;
+		right: clamp(1.75rem, 4vw, 3.5rem);
+		top: 52%;
+		max-width: 30ch;
+		margin: 0;
+		text-align: right;
+		font-size: calc(1.1rem * var(--peak-font-scale, 1));
+		line-height: 1.5;
+		color: rgba(255, 255, 255, 0.92);
+	}
+	.ps13__chips {
+		position: absolute;
+		right: clamp(1.75rem, 4vw, 3.5rem);
+		bottom: clamp(1.75rem, 4vw, 3.5rem);
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+		gap: 0.75rem;
+	}
+	.ps13__chip {
+		padding: 0.7rem 1.25rem;
+		background: rgba(255, 255, 255, 0.16);
+		backdrop-filter: blur(6px);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		border-radius: 6px;
+		font-size: 0.95rem;
+		font-weight: 600;
+	}
+
+	@media (max-width: 720px) {
+		.ps13__desc { position: static; max-width: none; text-align: left; margin-top: 1.5rem; }
+		.ps13__chips { position: static; justify-content: flex-start; margin-top: 1.5rem; }
+		.ps13__panel { height: auto; min-height: 70vh; }
+	}
+</style>

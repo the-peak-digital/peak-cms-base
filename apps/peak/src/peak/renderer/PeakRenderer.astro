@@ -1,0 +1,44 @@
+---
+/**
+ * PeakRenderer — turns a page's stored block list into rendered Astro
+ * components. This is Peak's own renderer (section 3 of the brief): it depends
+ * only on our registry, not on the Emdash renderer, so it survives Emdash
+ * removal.
+ *
+ * Usage:
+ *   const blocks = page.data.content;  // [{ _type: "peak.hero", title: "..." }]
+ *   <PeakRenderer blocks={blocks} />
+ *
+ * Each item's `_type` selects the component; the whole item is passed as
+ * `node`, matching how each block reads Astro.props.node.
+ */
+import { blockComponents } from "../blocks/registry";
+
+interface BlockNode {
+	_type?: string;
+	[key: string]: unknown;
+}
+
+interface Props {
+	blocks?: BlockNode[] | null;
+}
+
+const { blocks = [] } = Astro.props;
+const items = Array.isArray(blocks) ? blocks : [];
+---
+
+{
+	items.map((node) => {
+		const type = node?._type;
+		const Component = type ? (blockComponents[type] as any) : undefined;
+		if (!Component) {
+			// Unknown block type — render nothing in prod, a hint in dev.
+			return import.meta.env.DEV ? (
+				<div data-peak-unknown-block={type}>Unknown block: {type}</div>
+			) : null;
+		}
+		// Each block applies its own width + font-size via PeakSection, so the
+		// renderer just dispatches (works the same as PortableText on real pages).
+		return <Component node={node} />;
+	})
+}

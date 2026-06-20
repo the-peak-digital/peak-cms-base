@@ -1,0 +1,165 @@
+---
+import type { Services12Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Services12Props;
+const { title, subtitle, descriptionLabel = "Description", services } = node;
+
+const list = (Array.isArray(services) ? services : []).filter((s) => s?.title || s?.image);
+const paragraphs = (s?: string) =>
+	(s ?? "")
+		.split(/\n\s*\n/)
+		.map((p) => p.trim())
+		.filter(Boolean);
+---
+
+<PeakSection node={node}>
+	<div class="ps12">
+		<header class="ps12__head">
+			{title && <h2 class="ps12__title">{title}</h2>}
+			{subtitle && <p class="ps12__sub">{subtitle}</p>}
+		</header>
+
+		{list.length > 0 && (
+			<div class="ps12__body">
+				<ul class="ps12__list">
+					{list.map((s, i) => (
+						<li
+							class:list={["ps12__item", { "is-active": i === 0 }]}
+							data-index={i}
+							tabindex="0"
+						>
+							<span class="ps12__item-title">{s.title}</span>
+							<span class="ps12__item-num">{String(i + 1).padStart(2, "0")}</span>
+						</li>
+					))}
+				</ul>
+
+				<div class="ps12__panel">
+					<div class="ps12__media">
+						{list.map((s, i) => (
+							<img class:list={["ps12__img", { "is-active": i === 0 }]} data-img={i} src={s.image} alt={s.alt ?? s.title ?? ""} loading="lazy" />
+						))}
+					</div>
+					<h3 class="ps12__desc-label">{descriptionLabel}</h3>
+					<div class="ps12__descs">
+						{list.map((s, i) => (
+							<div class:list={["ps12__desc", { "is-active": i === 0 }]} data-desc={i}>
+								{paragraphs(s.description).map((p) => (
+									<p>{p}</p>
+								))}
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+		)}
+	</div>
+</PeakSection>
+
+<style>
+	.ps12 { color: #15161a; }
+
+	.ps12__head { text-align: center; max-width: 640px; margin: 0 auto clamp(2rem, 4vw, 3.5rem); }
+	.ps12__title {
+		margin: 0;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		font-size: calc(clamp(2.2rem, 4.5vw, 3.4rem) * var(--peak-font-scale, 1));
+	}
+	.ps12__sub { margin: 0.9rem 0 0; color: #6b6862; font-size: calc(1.05rem * var(--peak-font-scale, 1)); line-height: 1.5; }
+
+	.ps12__body {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: clamp(1.5rem, 4vw, 4rem);
+		align-items: start;
+	}
+
+	/* Left list. */
+	.ps12__list { list-style: none; margin: 0; padding: 0; }
+	.ps12__item {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: clamp(0.85rem, 1.5vw, 1.3rem) clamp(1rem, 1.8vw, 1.6rem);
+		border-radius: 16px;
+		cursor: pointer;
+		outline: none;
+		color: #b7b3ab;
+		transition: color 0.3s ease, background 0.3s ease;
+	}
+	.ps12__item.is-active { background: #f4f3f1; color: #15161a; }
+	.ps12__item-title {
+		font-weight: 600;
+		letter-spacing: -0.01em;
+		font-size: calc(clamp(1.5rem, 2.4vw, 2.2rem) * var(--peak-font-scale, 1));
+	}
+	.ps12__item-num { font-size: 0.95rem; font-weight: 500; }
+
+	/* Right panel. */
+	.ps12__media {
+		position: relative;
+		aspect-ratio: 16 / 11;
+		border-radius: 16px;
+		overflow: hidden;
+		background: #ece7e1;
+	}
+	.ps12__img {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		opacity: 0;
+		transition: opacity 0.5s ease;
+	}
+	.ps12__img.is-active { opacity: 1; }
+	.ps12__desc-label {
+		margin: clamp(1.5rem, 2.5vw, 2rem) 0 0.75rem;
+		font-weight: 700;
+		font-size: calc(1.3rem * var(--peak-font-scale, 1));
+	}
+	.ps12__descs { position: relative; }
+	.ps12__desc { display: none; }
+	.ps12__desc.is-active { display: block; }
+	.ps12__desc p { margin: 0 0 1rem; color: #57544e; font-size: calc(1.02rem * var(--peak-font-scale, 1)); line-height: 1.6; }
+	.ps12__desc p:last-child { margin-bottom: 0; }
+
+	@media (prefers-reduced-motion: reduce) {
+		.ps12__item, .ps12__img { transition: none; }
+	}
+
+	@media (max-width: 860px) {
+		.ps12__body { grid-template-columns: 1fr; }
+		.ps12__panel { order: -1; }
+	}
+</style>
+
+<script>
+	// Hover/focus to swap the active service (highlight + image + description).
+	// Per-instance guard + astro:page-load. No-JS shows the first service.
+	function initPs12(root: HTMLElement) {
+		if (root.dataset.ps12Init) return;
+		root.dataset.ps12Init = "1";
+		const items = Array.from(root.querySelectorAll<HTMLElement>(".ps12__item"));
+		const imgs = Array.from(root.querySelectorAll<HTMLElement>(".ps12__img"));
+		const descs = Array.from(root.querySelectorAll<HTMLElement>(".ps12__desc"));
+		const activate = (idx: number) => {
+			items.forEach((el) => el.classList.toggle("is-active", Number(el.dataset.index) === idx));
+			imgs.forEach((el) => el.classList.toggle("is-active", Number(el.dataset.img) === idx));
+			descs.forEach((el) => el.classList.toggle("is-active", Number(el.dataset.desc) === idx));
+		};
+		items.forEach((el) => {
+			const idx = Number(el.dataset.index);
+			el.addEventListener("mouseenter", () => activate(idx));
+			el.addEventListener("focusin", () => activate(idx));
+		});
+	}
+	function initAllPs12() {
+		document.querySelectorAll<HTMLElement>(".ps12").forEach(initPs12);
+	}
+	document.addEventListener("astro:page-load", initAllPs12);
+	initAllPs12();
+</script>

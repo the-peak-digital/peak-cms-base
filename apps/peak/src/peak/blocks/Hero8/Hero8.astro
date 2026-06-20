@@ -1,0 +1,134 @@
+---
+import type { Hero8Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero8Props;
+const {
+	titleItalic, title, subtitle, features, image, imageAlt,
+	formTitle, projectTypes, timingOptions, buttonText, note, endpoint, reviewRating, reviewText,
+} = node;
+const featureList = Array.isArray(features) ? features.filter((f) => f?.label) : [];
+const types = (projectTypes ?? "").split("\n").map((s) => s.trim()).filter(Boolean);
+const timings = (timingOptions ?? "").split("\n").map((s) => s.trim()).filter(Boolean);
+const secNode = { ...node, width: (node as any).width || "full" };
+---
+
+<PeakSection node={secNode}>
+	<div class="hf">
+		{image && <img class="hf__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
+		<div class="hf__overlay"></div>
+		<div class="hf__inner">
+			<div class="hf__left">
+				<h1 class="hf__title">
+					{titleItalic && <em>{titleItalic}</em>}
+					{title && <span>{title}</span>}
+				</h1>
+				{subtitle && <p class="hf__subtitle">{subtitle}</p>}
+				{featureList.length > 0 && (
+					<div class="hf__features">
+						{featureList.map((f) => <span class="hf__feature">{f.label}</span>)}
+					</div>
+				)}
+				{(reviewRating || reviewText) && (
+					<div class="hf__reviews">
+						<div>
+							<span class="hf__reviews-label">Overall Rating</span>
+							<span class="hf__reviews-row"><strong>{reviewRating}</strong> <span class="hf__reviews-stars">★★★★★</span></span>
+							{reviewText && <span class="hf__reviews-count">{reviewText}</span>}
+						</div>
+					</div>
+				)}
+			</div>
+
+			<form class="hf__form" data-endpoint={endpoint || ""}>
+				{formTitle && <h2 class="hf__form-title">{formTitle}</h2>}
+				<select class="hf__input" name="projectType" required>
+					<option value="" selected disabled>Project Type</option>
+					{types.map((t) => <option value={t}>{t}</option>)}
+				</select>
+				<input class="hf__input" name="name" type="text" placeholder="Your Name" required />
+				<div class="hf__row">
+					<input class="hf__input" name="email" type="email" placeholder="Email" required />
+					<input class="hf__input" name="phone" type="tel" placeholder="Phone" />
+				</div>
+				<div class="hf__row">
+					<input class="hf__input" name="zip" type="text" placeholder="ZIP Code" />
+					<select class="hf__input" name="timing">
+						<option value="" selected disabled>Project Timing</option>
+						{timings.map((t) => <option value={t}>{t}</option>)}
+					</select>
+				</div>
+				<button class="hf__submit" type="submit">{buttonText}</button>
+				{note && <p class="hf__note">{note}</p>}
+				<p class="hf__status" role="status"></p>
+			</form>
+		</div>
+	</div>
+</PeakSection>
+
+<script>
+	function initLeadForms() {
+		document.querySelectorAll(".hf__form").forEach((form) => {
+			if (form.dataset.peakBound) return;
+			form.dataset.peakBound = "1";
+			const status = form.querySelector(".hf__status");
+			form.addEventListener("submit", async (e) => {
+				e.preventDefault();
+				const endpoint = form.getAttribute("data-endpoint");
+				const data = Object.fromEntries(new FormData(form).entries());
+				try {
+					if (endpoint) {
+						const res = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+						if (!res.ok) throw new Error();
+					}
+					if (status) status.textContent = "Thanks! We'll be in touch within 24 hours.";
+					form.reset();
+				} catch {
+					if (status) status.textContent = "Something went wrong. Please try again.";
+				}
+			});
+		});
+	}
+	initLeadForms();
+	document.addEventListener("astro:page-load", initLeadForms);
+</script>
+
+<style>
+	.hf { position: relative; min-height: clamp(560px, 80vh, 820px); overflow: hidden; color: #fff; }
+	.hf__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+	.hf__overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,15,18,0.7) 0%, rgba(15,15,18,0.35) 55%, rgba(15,15,18,0.2) 100%); }
+	.hf__inner {
+		position: relative; max-width: var(--peak-wide, 1180px); margin: 0 auto; min-height: inherit;
+		padding: clamp(2.5rem, 5vw, 4.5rem) var(--peak-gutter, 1.5rem);
+		display: grid; grid-template-columns: 1fr 460px; gap: 3rem; align-items: center;
+	}
+	/* Left */
+	.hf__title { font-family: Georgia, serif; font-size: calc(clamp(2.25rem, 4vw, 3.5rem) * var(--peak-font-scale, 1)); line-height: 1.1; margin: 0 0 1.25rem; font-weight: 500; }
+	.hf__title em { font-style: italic; display: block; }
+	.hf__title span { display: block; }
+	.hf__subtitle { font-size: calc(1.2rem * var(--peak-font-scale, 1)); line-height: 1.5; color: rgba(255,255,255,0.9); margin: 0 0 2rem; max-width: 28rem; }
+	.hf__features { display: inline-flex; flex-wrap: wrap; gap: 1.5rem; border: 1px solid rgba(255,255,255,0.3); border-radius: 12px; padding: 0.85rem 1.25rem; background: rgba(255,255,255,0.06); backdrop-filter: blur(6px); }
+	.hf__feature { font-size: 0.9rem; font-weight: 600; }
+	.hf__reviews { margin-top: 1.75rem; display: inline-flex; background: #fff; color: #1a1a1a; border-radius: 12px; padding: 0.85rem 1.1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+	.hf__reviews-label { display: block; font-size: 0.75rem; color: #666; }
+	.hf__reviews-row { display: flex; align-items: center; gap: 0.4rem; font-size: 1.2rem; }
+	.hf__reviews-stars { color: #f5a623; }
+	.hf__reviews-count { display: block; font-size: 0.75rem; color: #4285f4; }
+
+	/* Form card */
+	.hf__form { background: #fff; color: #1a1a1a; border-radius: 18px; padding: clamp(1.5rem, 2vw, 2rem); box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 0.85rem; }
+	.hf__form-title { text-align: center; font-size: 1.4rem; margin: 0 0 0.5rem; }
+	.hf__row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+	.hf__input { width: 100%; padding: 0.85rem 1rem; border: 1px solid #dcdcdc; border-radius: 999px; font-size: 0.95rem; font-family: inherit; background: #fff; color: #1a1a1a; }
+	select.hf__input { appearance: none; }
+	.hf__submit { padding: 1rem; border: none; border-radius: 999px; background: #7aa86f; color: #fff; font-weight: 700; font-size: 1.05rem; cursor: pointer; }
+	.hf__submit:hover { filter: brightness(1.05); }
+	.hf__note { text-align: center; font-style: italic; color: #666; font-size: 0.9rem; margin: 0; }
+	.hf__status:empty { display: none; }
+	.hf__status { text-align: center; color: #7aa86f; font-weight: 600; margin: 0; }
+
+	@media (max-width: 900px) {
+		.hf__inner { grid-template-columns: 1fr; }
+		.hf__overlay { background: rgba(15,15,18,0.55); }
+	}
+</style>

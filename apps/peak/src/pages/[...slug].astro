@@ -1,0 +1,35 @@
+---
+/**
+ * Public page route — renders any published CMS page by its slug, wrapped in the
+ * Peak BaseLayout (header + footer). Each page can choose its header/footer
+ * variant and menus via fields (peakHeader, peakFooter, peakHeaderMenu,
+ * peakFooterMenu); sensible defaults apply when unset.
+ */
+import { getEmDashEntry } from "emdash";
+import { PortableText } from "emdash/ui";
+import { blockComponents } from "../peak/blocks/registry";
+import BaseLayout from "../peak/layouts/BaseLayout.astro";
+
+const { slug } = Astro.params;
+const { entry: page } = await getEmDashEntry("pages", slug ?? "");
+
+if (!page) {
+	return new Response("Page not found", { status: 404 });
+}
+
+const d = page.data as Record<string, any>;
+const content = d.content ?? [];
+// Per-page selection fields are snake_case slugs; tolerate camelCase too.
+const pick = (a: string, b: string, fallback: string) => d[a] || d[b] || fallback;
+---
+
+<BaseLayout
+	title={d.title}
+	description={d.meta_description || d.metaDescription}
+	header={pick("peak_header", "peakHeader", "default")}
+	footer={pick("peak_footer", "peakFooter", "default")}
+	headerMenu={pick("peak_header_menu", "peakHeaderMenu", "primary")}
+	footerMenu={pick("peak_footer_menu", "peakFooterMenu", "footer")}
+>
+	<PortableText value={content} components={{ type: blockComponents as any }} />
+</BaseLayout>

@@ -1,0 +1,46 @@
+---
+// Centered header — logo centered on top, nav row centered below.
+interface MenuItem { label: string; url: string; target?: string }
+interface Props { siteTitle?: string; items?: MenuItem[]; ctaText?: string; ctaUrl?: string }
+const { siteTitle = "Site", items = [] } = Astro.props;
+---
+
+<header class="peak-hc">
+	<a href="/" class="peak-hc__logo">{siteTitle}</a>
+	{items.length > 0 && (
+		<nav class="peak-hc__nav">
+			{items.map((i) => <a href={i.url} target={i.target}>{i.label}</a>)}
+		</nav>
+	)}
+</header>
+
+<style>
+	.peak-hc {
+		border-bottom: 1px solid var(--peak-border, #e2e8f0);
+		background: var(--peak-bg, #fff);
+		text-align: center;
+		padding: 1.25rem var(--peak-space-md, 1.5rem) 0.9rem;
+	}
+	.peak-hc__logo {
+		display: inline-block;
+		font-weight: 800;
+		font-size: 1.5rem;
+		text-decoration: none;
+		color: var(--peak-text, #0f172a);
+		margin-bottom: 0.75rem;
+	}
+	.peak-hc__nav {
+		display: flex;
+		justify-content: center;
+		flex-wrap: wrap;
+		gap: 1.5rem;
+	}
+	.peak-hc__nav a {
+		color: var(--peak-muted, #475569);
+		text-decoration: none;
+		font-weight: 500;
+	}
+	.peak-hc__nav a:hover {
+		color: var(--peak-primary, #4f46e5);
+	}
+</style>

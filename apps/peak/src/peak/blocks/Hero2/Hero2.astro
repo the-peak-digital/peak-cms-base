@@ -1,0 +1,184 @@
+---
+import type { Hero2Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero2Props;
+const {
+	titlePart1,
+	avatar1,
+	titlePart2,
+	avatar2,
+	emphasis,
+	body,
+	buttonText,
+	buttonUrl,
+	secondaryText,
+	secondaryUrl,
+	image,
+	imageAlt,
+	partnersText,
+	partners,
+	partnersLinkText,
+	partnersLinkUrl,
+	cardTitle,
+	cardText,
+	cardImages,
+	cardCount,
+} = node;
+
+const logos = Array.isArray(partners) ? partners.filter((p) => p?.url) : [];
+const cardThumbs = Array.isArray(cardImages) ? cardImages.filter((i) => i?.url) : [];
+---
+
+<PeakSection node={node}>
+	<div class="h2">
+		<!-- Left: text panel -->
+		<div class="h2__left">
+			<h1 class="h2__title">
+				<span>{titlePart1}</span>
+				{avatar1 && <img class="h2__inline-av" src={avatar1} alt="" />}
+				<span class="h2__line2">
+					{titlePart2}
+					{avatar2 && <img class="h2__inline-av" src={avatar2} alt="" />}
+					{emphasis && <em class="h2__em">{emphasis}</em>}
+				</span>
+			</h1>
+
+			{body && <p class="h2__body">{body}</p>}
+
+			<div class="h2__actions">
+				{buttonText && <a class="h2__btn" href={buttonUrl}>{buttonText}</a>}
+				{secondaryText && (
+					<a class="h2__secondary" href={secondaryUrl}>{secondaryText} <span aria-hidden="true">→</span></a>
+				)}
+			</div>
+
+			{(logos.length > 0 || partnersText) && (
+				<div class="h2__partners">
+					<div class="h2__partners-left">
+						{logos.length > 0 && (
+							<div class="h2__logos">
+								{logos.map((l) => <img src={l.url} alt={l.alt ?? ""} />)}
+							</div>
+						)}
+						{partnersText && <p class="h2__partners-text">{partnersText}</p>}
+					</div>
+					{partnersLinkText && (
+						<a class="h2__partners-link" href={partnersLinkUrl}>
+							{partnersLinkText} <span class="h2__arrow" aria-hidden="true">→</span>
+						</a>
+					)}
+				</div>
+			)}
+		</div>
+
+		<!-- Right: image + floating card -->
+		<div class="h2__right">
+			{image && <img class="h2__photo" src={image} alt={imageAlt ?? ""} loading="eager" />}
+			{(cardTitle || cardText) && (
+				<div class="h2__card">
+					{cardThumbs.length > 0 && (
+						<div class="h2__card-thumbs">
+							{cardThumbs.slice(0, 2).map((t) => <img src={t.url} alt="" />)}
+						</div>
+					)}
+					<div class="h2__card-body">
+						{cardTitle && <p class="h2__card-title">{cardTitle}</p>}
+						{cardText && <p class="h2__card-text">{cardText}</p>}
+					</div>
+					<div class="h2__card-side">
+						{cardCount && <span class="h2__card-count">{cardCount}</span>}
+						<span class="h2__mic" aria-hidden="true">🎙</span>
+					</div>
+				</div>
+			)}
+		</div>
+	</div>
+</PeakSection>
+
+<style>
+	.h2 {
+		--h2-cream: #efece6;
+		--h2-dark: #1a1a1a;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		border-radius: 28px;
+		overflow: hidden;
+		min-height: 580px;
+		background: var(--h2-cream);
+	}
+
+	/* Left */
+	.h2__left {
+		padding: clamp(2rem, 4vw, 3.5rem);
+		display: flex;
+		flex-direction: column;
+	}
+	.h2__title {
+		font-size: calc(clamp(2rem, 3.2vw, 2.75rem) * var(--peak-font-scale, 1));
+		line-height: 1.25;
+		font-weight: 600;
+		letter-spacing: -0.01em;
+		margin: 2rem 0 1.5rem;
+		color: var(--h2-dark);
+	}
+	.h2__line2 { display: inline; }
+	.h2__inline-av {
+		width: 1.4em; height: 1.4em; border-radius: 0.5em;
+		object-fit: cover; vertical-align: middle; margin: 0 0.2em;
+		border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+	}
+	.h2__em {
+		font-family: Georgia, "Times New Roman", serif;
+		font-style: italic; font-weight: 500;
+		border-bottom: 2px solid currentColor; padding-bottom: 1px;
+	}
+	.h2__body {
+		font-size: calc(0.95rem * var(--peak-font-scale, 1));
+		line-height: 1.7; color: #555; max-width: 30rem; margin: 0 0 2rem;
+	}
+	.h2__actions { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+	.h2__btn {
+		background: var(--h2-dark); color: #fff;
+		padding: 0.85rem 1.5rem; border-radius: 999px; font-size: 0.85rem;
+		text-decoration: none; white-space: nowrap;
+	}
+	.h2__secondary { color: var(--h2-dark); text-decoration: none; font-size: 0.9rem; display: inline-flex; gap: 0.5rem; }
+	.h2__partners {
+		margin-top: auto;
+		display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem;
+		padding-top: 2.5rem;
+	}
+	.h2__logos { display: flex; gap: 1.25rem; align-items: center; margin-bottom: 0.6rem; }
+	.h2__logos img { height: 26px; width: auto; object-fit: contain; opacity: 0.8; }
+	.h2__partners-text { font-size: 0.72rem; color: #888; line-height: 1.5; margin: 0; max-width: 24rem; }
+	.h2__partners-link { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 0.8rem; color: var(--h2-dark); text-decoration: none; white-space: nowrap; }
+	.h2__arrow {
+		display: inline-flex; align-items: center; justify-content: center;
+		width: 34px; height: 34px; border-radius: 50%; border: 1px solid #ccc;
+	}
+
+	/* Right */
+	.h2__right { position: relative; min-height: 400px; }
+	.h2__photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+	.h2__card {
+		position: absolute; left: 1.25rem; right: 1.25rem; bottom: 1.25rem;
+		display: flex; align-items: center; gap: 0.85rem;
+		background: rgba(20,20,20,0.55); backdrop-filter: blur(12px);
+		border-radius: 18px; padding: 0.75rem; color: #fff;
+	}
+	.h2__card-thumbs { display: flex; flex: 0 0 auto; }
+	.h2__card-thumbs img { width: 48px; height: 48px; border-radius: 10px; object-fit: cover; margin-left: -12px; border: 2px solid rgba(255,255,255,0.3); }
+	.h2__card-thumbs img:first-child { margin-left: 0; }
+	.h2__card-body { flex: 1; min-width: 0; }
+	.h2__card-title { font-family: Georgia, serif; font-style: italic; margin: 0 0 0.25rem; font-size: 0.95rem; }
+	.h2__card-text { margin: 0; font-size: 0.78rem; opacity: 0.85; line-height: 1.4; }
+	.h2__card-side { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; flex: 0 0 auto; }
+	.h2__card-count { font-size: 0.7rem; opacity: 0.7; }
+	.h2__mic { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; }
+
+	@media (max-width: 860px) {
+		.h2 { grid-template-columns: 1fr; }
+		.h2__right { min-height: 360px; }
+	}
+</style>

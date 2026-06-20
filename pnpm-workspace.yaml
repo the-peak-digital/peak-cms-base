@@ -21,6 +21,12 @@ blockExoticSubdeps: true
 verifyStoreIntegrity: true
 strictStorePkgContentCheck: true
 verifyDepsBeforeRun: error
+# Hoist the AWS SDK to the top-level node_modules so emdash core's S3/R2 storage
+# adapter (packages/core/dist/storage/s3.mjs) can resolve it. Unlike `pg` (a
+# declared optionalDependency of core), @aws-sdk is imported as an external, so
+# the app declaring it isn't enough under strict pnpm. Needed for Cloudflare R2.
+publicHoistPattern:
+  - "@aws-sdk/*"
 allowBuilds:
   "@parcel/watcher": true
   sharp: true

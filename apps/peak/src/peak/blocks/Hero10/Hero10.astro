@@ -1,0 +1,90 @@
+---
+import type { Hero10Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero10Props;
+const { logo, logoAlt, title, links, bottomText, videoUrl, poster, posterAlt } = node;
+const linkList = Array.isArray(links) ? links.filter((l) => l?.label) : [];
+const secNode = { ...node, width: (node as any).width || "full" };
+---
+
+<PeakSection node={secNode}>
+	<div class="hsp">
+		{videoUrl ? (
+			<video class="hsp__bg" autoplay loop muted playsinline poster={poster || undefined}>
+				<source src={videoUrl} type="video/mp4" />
+			</video>
+		) : (
+			poster && <img class="hsp__bg" src={poster} alt={posterAlt ?? ""} loading="eager" />
+		)}
+
+		<aside class="hsp__panel">
+			<div class="hsp__panel-inner">
+				{logo && <img class="hsp__logo" src={logo} alt={logoAlt ?? ""} loading="eager" />}
+				{title && <h1 class="hsp__title">{title}</h1>}
+				{linkList.length > 0 && (
+					<nav class="hsp__links">
+						{linkList.map((l) => (
+							<a class="hsp__link" href={l.url || "#"}>
+								<span>{l.label}</span>
+								<span class="hsp__chev" aria-hidden="true">›</span>
+							</a>
+						))}
+					</nav>
+				)}
+			</div>
+			{bottomText && <div class="hsp__band">{bottomText}</div>}
+		</aside>
+	</div>
+</PeakSection>
+
+<style>
+	.hsp { position: relative; min-height: clamp(560px, 88vh, 900px); overflow: hidden; }
+	.hsp__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+	/* Frosted left panel — video shows faintly through the top. */
+	.hsp__panel {
+		position: absolute; top: 0; left: 0; bottom: 0; width: clamp(300px, 32%, 460px);
+		display: flex; flex-direction: column;
+		background: rgba(228, 230, 233, 0.72);
+		backdrop-filter: blur(12px) saturate(1.05);
+		-webkit-backdrop-filter: blur(12px) saturate(1.05);
+		border-right: 1px solid rgba(255,255,255,0.4);
+		/* Draw the panel in left→right on load (clip reveal — no distortion). */
+		animation: hsp-reveal 1.5s cubic-bezier(0.65, 0, 0.2, 1) 0.25s both;
+	}
+	@keyframes hsp-reveal {
+		from { clip-path: inset(0 100% 0 0); }
+		to { clip-path: inset(0 0 0 0); }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.hsp__panel { animation: none; }
+	}
+	.hsp__panel-inner { flex: 1; padding: clamp(1.75rem, 3vw, 2.75rem); display: flex; flex-direction: column; }
+	.hsp__logo { width: clamp(120px, 14vw, 170px); height: auto; margin: 0.5rem 0 auto; align-self: flex-start; }
+	.hsp__title {
+		font-family: Georgia, "Times New Roman", serif;
+		font-size: calc(clamp(1.6rem, 2.4vw, 2.1rem) * var(--peak-font-scale, 1));
+		font-weight: 600; line-height: 1.25; color: #2b3a52; margin: 2rem 0;
+	}
+	.hsp__links { display: flex; flex-direction: column; gap: 0.6rem; margin-top: auto; }
+	.hsp__link {
+		display: flex; align-items: center; justify-content: space-between;
+		background: #fff; border-left: 4px solid #e3b85e; border-radius: 4px;
+		padding: 0.85rem 1rem; text-decoration: none; color: #2b3a52; font-weight: 700;
+		box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+		transition: transform 0.15s ease;
+	}
+	.hsp__link:hover { transform: translateX(3px); }
+	.hsp__chev { color: #2b3a52; font-size: 1.2rem; }
+	.hsp__band {
+		background: #4a8ba0; color: #fff; font-weight: 700;
+		padding: 1.1rem clamp(1.75rem, 3vw, 2.75rem); line-height: 1.4;
+		font-size: calc(1rem * var(--peak-font-scale, 1));
+	}
+
+	@media (max-width: 820px) {
+		.hsp__panel { position: relative; width: 100%; }
+		.hsp { min-height: auto; }
+		.hsp__bg { position: relative; height: 280px; }
+	}
+</style>

@@ -1,0 +1,190 @@
+---
+import type { Services2Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Services2Props;
+const {
+	titleLead,
+	titleHighlight,
+	description,
+	cards,
+	buttonText,
+	buttonUrl = "#",
+	accent = "#f5163f",
+	bg = "#f1f2f4",
+} = node;
+
+const cardList = Array.isArray(cards) ? cards.filter((c) => c?.title || c?.icon) : [];
+
+// Icon library (line/solid mixed) keyed by the schema's select values.
+const icons: Record<string, string> = {
+	pie: '<path fill="currentColor" d="M11 3.05A9 9 0 1 0 21 13h-8V5a8.9 8.9 0 0 0-2-1.95z"/><path fill="none" stroke="currentColor" stroke-width="2" d="M13 3.05A9 9 0 0 1 20.95 11H13z"/>',
+	globe: '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/>',
+	users: '<circle cx="9" cy="9" r="3.2" fill="currentColor"/><circle cx="16" cy="10" r="2.6" fill="currentColor" opacity="0.7"/><path fill="currentColor" d="M3.5 19a5.5 5.5 0 0 1 11 0z"/><path fill="currentColor" opacity="0.7" d="M14 19a4.5 4.5 0 0 1 7 0z"/>',
+	voicemail: '<circle cx="7" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path stroke="currentColor" stroke-width="2" d="M7 16.5h10"/>',
+	chart: '<path fill="currentColor" d="M4 13h3v7H4zm6.5-5h3v12h-3zM17 4h3v16h-3z"/>',
+	shield: '<path fill="currentColor" d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5z"/>',
+	bolt: '<path fill="currentColor" d="M13 2 4 14h6l-1 8 9-12h-6z"/>',
+	star: '<path fill="currentColor" d="m12 2 2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z"/>',
+};
+// Default badge palette, cycled by index when a card sets no iconColor.
+const palette = ["#ff4d6d", "#16c79a", "#5b5bd6", "#ff8a3d", "#0ea5e9", "#a855f7"];
+const moreArrow =
+	'<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 12h15m-6-6 6 6-6 6"/>';
+---
+
+<PeakSection node={node}>
+	<div class="ps2" style={`--accent:${accent}; --bg:${bg}`}>
+		<header class="ps2__head">
+			{(titleLead || titleHighlight) && (
+				<h2 class="ps2__title">
+					{titleLead}{titleLead && " "}
+					{titleHighlight && <span class="ps2__hl">{titleHighlight}</span>}
+				</h2>
+			)}
+			{description && <p class="ps2__lead">{description}</p>}
+		</header>
+
+		{cardList.length > 0 && (
+			<div class="ps2__cards">
+				{cardList.map((c, i) => {
+					const color = c.iconColor || palette[i % palette.length];
+					return (
+						<article class="ps2__card">
+							<span class="ps2__badge" style={`--c:${color}`}>
+								<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" set:html={icons[c.icon ?? "pie"] ?? icons.pie} />
+							</span>
+							<div class="ps2__body">
+								{c.title && <h3 class="ps2__card-title">{c.title}</h3>}
+								{c.description && <p class="ps2__card-text">{c.description}</p>}
+								{c.linkText && (
+									<a class="ps2__more" href={c.linkUrl || undefined}>
+										{c.linkText}
+										<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" set:html={moreArrow} />
+									</a>
+								)}
+							</div>
+						</article>
+					);
+				})}
+			</div>
+		)}
+
+		{buttonText && (
+			<div class="ps2__cta-row">
+				<a class="ps2__cta" href={buttonUrl}>
+					{buttonText}
+					<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" set:html={moreArrow} />
+				</a>
+			</div>
+		)}
+	</div>
+</PeakSection>
+
+<style>
+	.ps2 {
+		background: var(--bg);
+		color: #14151a;
+		border-radius: clamp(18px, 2.5vw, 34px);
+		padding: clamp(2rem, 5vw, 4.5rem) clamp(1.5rem, 4vw, 3.5rem);
+	}
+
+	.ps2__head { text-align: center; max-width: 720px; margin: 0 auto clamp(2rem, 4vw, 3.5rem); }
+	.ps2__title {
+		font-size: calc(clamp(2.2rem, 4vw, 3rem) * var(--peak-font-scale, 1));
+		font-weight: 800;
+		letter-spacing: -0.02em;
+		margin: 0;
+	}
+	.ps2__hl {
+		background: color-mix(in srgb, var(--accent) 20%, white);
+		color: #14151a;
+		padding: 0 0.35em;
+		border-radius: 10px;
+	}
+	.ps2__lead {
+		font-size: calc(1.1rem * var(--peak-font-scale, 1));
+		line-height: 1.5;
+		color: #5b606b;
+		margin: 1rem auto 0;
+	}
+
+	/* Card row. Cards sit lower than their badges (badge overlaps top-left). */
+	.ps2__cards {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: clamp(1rem, 2vw, 1.75rem);
+		align-items: start;
+	}
+	.ps2__card { position: relative; padding-top: 28px; }
+	.ps2__badge {
+		position: absolute;
+		top: 0;
+		left: 18px;
+		z-index: 2;
+		display: grid;
+		place-items: center;
+		width: 52px;
+		height: 52px;
+		border-radius: 16px;
+		color: var(--c);
+		background: color-mix(in srgb, var(--c) 16%, white);
+	}
+	.ps2__body {
+		background: #fff;
+		border-radius: 20px;
+		padding: 3.25rem 1.6rem 2rem;
+		min-height: 280px;
+		display: flex;
+		flex-direction: column;
+		box-shadow: 0 18px 40px -28px rgba(20, 21, 26, 0.35);
+	}
+	.ps2__card-title {
+		font-size: calc(1.55rem * var(--peak-font-scale, 1));
+		font-weight: 800;
+		letter-spacing: -0.01em;
+		margin: 0 0 0.7rem;
+	}
+	.ps2__card-text {
+		font-size: calc(1.02rem * var(--peak-font-scale, 1));
+		line-height: 1.5;
+		color: #6b7079;
+		margin: 0;
+	}
+	.ps2__more {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		margin-top: auto;
+		padding-top: 1.75rem;
+		font-weight: 700;
+		font-size: 1rem;
+		color: #14151a;
+		text-decoration: none;
+	}
+	.ps2__more:hover { color: var(--accent); }
+	/* First card's link is accent-colored, matching the design. */
+	.ps2__card:first-child .ps2__more { color: var(--accent); }
+
+	.ps2__cta-row { display: flex; justify-content: center; margin-top: clamp(2rem, 4vw, 3.5rem); }
+	.ps2__cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.6rem;
+		padding: 1rem 2rem;
+		border-radius: 12px;
+		background: var(--accent);
+		color: #fff;
+		font-weight: 700;
+		font-size: 1.05rem;
+		text-decoration: none;
+		box-shadow: 0 16px 30px -16px var(--accent);
+	}
+
+	@media (max-width: 1000px) {
+		.ps2__cards { grid-template-columns: repeat(2, 1fr); }
+	}
+	@media (max-width: 560px) {
+		.ps2__cards { grid-template-columns: 1fr; }
+	}
+</style>

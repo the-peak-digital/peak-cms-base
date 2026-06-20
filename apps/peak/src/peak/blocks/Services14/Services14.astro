@@ -1,0 +1,128 @@
+---
+import type { Services14Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Services14Props;
+const { badge, titleLead, tagline, items, accent = "#ff4127", panelColor = "#f3f2f0" } = node;
+
+const list = (Array.isArray(items) ? items : []).filter((s) => s?.title || s?.image);
+const splitFeatures = (s?: string) =>
+	(s ?? "")
+		.split(/[,\n]/)
+		.map((f) => f.trim())
+		.filter(Boolean);
+const thumbs = (s: (typeof list)[number]) => [s.thumb1, s.thumb2, s.thumb3].filter(Boolean) as string[];
+---
+
+<PeakSection node={node}>
+	<div class="ps14" style={`--accent:${accent}; --panel:${panelColor}`}>
+		<header class="ps14__head">
+			{badge && <span class="ps14__badge">{badge}</span>}
+			<div class="ps14__head-row">
+				{titleLead && <h2 class="ps14__title">{titleLead}</h2>}
+				{tagline && <p class="ps14__tagline">{tagline}</p>}
+			</div>
+		</header>
+
+		<div class="ps14__stack">
+			{list.map((s, i) => (
+				<section class="ps14__panel">
+					<div class="ps14__info">
+						<span class="ps14__num">{String(i + 1).padStart(3, "0")}</span>
+						<div class="ps14__info-mid">
+							{s.title && <h3 class="ps14__panel-title">{s.title}</h3>}
+							{s.description && <p class="ps14__desc">{s.description}</p>}
+						</div>
+						{splitFeatures(s.features).length > 0 && (
+							<div class="ps14__chips">
+								{splitFeatures(s.features).map((f) => (
+									<span class="ps14__chip">{f}</span>
+								))}
+							</div>
+						)}
+					</div>
+					<div class="ps14__media">
+						{s.image && <img class="ps14__img" src={s.image} alt={s.alt ?? s.title ?? ""} loading="lazy" />}
+						{thumbs(s).length > 0 && (
+							<div class="ps14__thumbs">
+								{thumbs(s).map((t) => (
+									<img class="ps14__thumb" src={t} alt="" loading="lazy" />
+								))}
+							</div>
+						)}
+					</div>
+				</section>
+			))}
+		</div>
+	</div>
+</PeakSection>
+
+<style>
+	.ps14 { color: #1a1a1a; }
+
+	.ps14__head { padding: clamp(1.5rem, 4vw, 3rem) 0 clamp(2rem, 4vw, 3.5rem); }
+	.ps14__badge { display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 600; font-size: 1.05rem; }
+	.ps14__badge::before { content: ""; width: 18px; height: 14px; border: 2px solid var(--accent); border-radius: 3px; display: inline-block; }
+	.ps14__head-row { display: grid; grid-template-columns: 1.6fr 1fr; gap: 2rem; align-items: end; margin-top: 1.5rem; }
+	.ps14__title {
+		margin: 0;
+		font-weight: 700;
+		letter-spacing: -0.03em;
+		line-height: 1.02;
+		font-size: calc(clamp(2.4rem, 5.5vw, 4.5rem) * var(--peak-font-scale, 1));
+	}
+	.ps14__tagline { margin: 0 0 0.5rem; color: #7c7a76; font-size: calc(1.05rem * var(--peak-font-scale, 1)); line-height: 1.5; }
+
+	/* Sticky-stacking light panels. Opaque so later panels cover earlier ones. */
+	.ps14__panel {
+		position: sticky;
+		top: 5vh;
+		min-height: 84vh;
+		display: grid;
+		grid-template-columns: 1fr 1.3fr;
+		gap: clamp(1.5rem, 3vw, 3rem);
+		background: var(--panel);
+		border-radius: 4px;
+		padding: clamp(1.75rem, 3vw, 3rem);
+		margin-bottom: 4vh;
+	}
+	.ps14__info { display: flex; flex-direction: column; }
+	.ps14__num { color: var(--accent); font-weight: 600; font-size: calc(1.1rem * var(--peak-font-scale, 1)); }
+	.ps14__info-mid { margin-top: auto; }
+	.ps14__panel-title {
+		margin: 0;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		font-size: calc(clamp(1.8rem, 2.8vw, 2.6rem) * var(--peak-font-scale, 1));
+	}
+	.ps14__desc { margin: 1rem 0 0; max-width: 34ch; color: #6f6d68; font-size: calc(1.05rem * var(--peak-font-scale, 1)); line-height: 1.5; }
+	.ps14__chips { margin-top: auto; padding-top: 2.5rem; display: grid; grid-template-columns: repeat(2, max-content); gap: 0.75rem; }
+	.ps14__chip {
+		padding: 0.7rem 1.1rem;
+		border: 1px solid #d7d5d0;
+		border-radius: 8px;
+		font-size: 0.98rem;
+		color: #3f3d39;
+		white-space: nowrap;
+	}
+
+	.ps14__media { position: relative; border-radius: 4px; overflow: hidden; min-height: 60vh; background: #e4e0da; }
+	.ps14__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+	.ps14__thumbs { position: absolute; left: 8%; bottom: 6%; display: flex; gap: 0.5rem; }
+	.ps14__thumb {
+		width: clamp(70px, 8vw, 116px);
+		height: clamp(46px, 5vw, 74px);
+		object-fit: cover;
+		border-radius: 3px;
+		border: 2px solid rgba(255, 255, 255, 0.85);
+		box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.5);
+	}
+
+	@media (max-width: 820px) {
+		.ps14__head-row { grid-template-columns: 1fr; align-items: start; }
+		.ps14__panel { grid-template-columns: 1fr; min-height: 0; }
+		.ps14__media { min-height: 320px; }
+		.ps14__info-mid { margin-top: 1.5rem; }
+		.ps14__chips { margin-top: 1.5rem; }
+	}
+</style>
