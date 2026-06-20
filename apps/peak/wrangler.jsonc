@@ -1,0 +1,36 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "peak-cms",
+	"main": "./src/worker.ts",
+	"compatibility_date": "2026-02-24",
+	"compatibility_flags": ["nodejs_compat"],
+
+	// Database — Cloudflare D1. `astro dev` uses a local emulated copy in
+	// .wrangler/state; `wrangler deploy` provisions/uses the real one.
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "peak-cms-db",
+		},
+	],
+
+	// Media storage — Cloudflare R2.
+	"r2_buckets": [
+		{
+			"binding": "MEDIA",
+			"bucket_name": "peak-cms-media",
+		},
+	],
+
+	// Worker Loader for EmDash plugin sandboxing.
+	"worker_loaders": [
+		{
+			"binding": "LOADER",
+		},
+	],
+
+	// Drives scheduled publishing, plugin cron, and maintenance (see src/worker.ts).
+	"triggers": {
+		"crons": ["* * * * *"],
+	},
+}

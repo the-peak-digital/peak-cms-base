@@ -11,10 +11,6 @@ export interface Page {
   status: string;
   title: string;
   content?: PortableTextBlock[];
-  peak_header?: "default" | "centered";
-  peak_footer?: "default" | "simple";
-  peak_header_menu?: string;
-  peak_footer_menu?: string;
   createdAt: Date;
   updatedAt: Date;
   publishedAt: Date | null;

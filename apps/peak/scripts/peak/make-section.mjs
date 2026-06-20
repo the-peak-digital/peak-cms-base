@@ -108,21 +108,34 @@ for (const blk of targets) {
 	const shot = await page.locator(`[data-block="${blk.type}"] > :first-child`).screenshot();
 	log(`  shot ${shot.length} bytes`);
 
-	// 2. upload thumbnail
-	const up = await (
-		await fetch(`${BASE}/_emdash/api/media/upload-url`, {
-			method: "POST",
-			headers: Hjson,
-			body: JSON.stringify({ filename: `${slug}.png`, contentType: "image/png", size: shot.length }),
-		})
-	).json();
-	const { uploadUrl, headers, mediaId } = up.data ?? up;
-	await fetch(uploadUrl, { method: "PUT", headers: headers || { "Content-Type": "image/png" }, body: shot });
-	await fetch(`${BASE}/_emdash/api/media/${mediaId}/confirm`, {
+	// 2. upload thumbnail. Two storage paths:
+	//    - S3/R2 with presigned URLs -> upload-url + PUT + confirm
+	//    - R2/local "direct upload" (presigned returns 501) -> multipart POST /media
+	let mediaId;
+	const up = await fetch(`${BASE}/_emdash/api/media/upload-url`, {
 		method: "POST",
 		headers: Hjson,
-		body: JSON.stringify({ size: shot.length }),
+		body: JSON.stringify({ filename: `${slug}.png`, contentType: "image/png", size: shot.length }),
 	});
+	if (up.ok) {
+		const d = (await up.json()).data ?? {};
+		await fetch(d.uploadUrl, { method: "PUT", headers: d.headers || { "Content-Type": "image/png" }, body: shot });
+		await fetch(`${BASE}/_emdash/api/media/${d.mediaId}/confirm`, {
+			method: "POST",
+			headers: Hjson,
+			body: JSON.stringify({ size: shot.length }),
+		});
+		mediaId = d.mediaId;
+	} else {
+		const fd = new FormData();
+		fd.append("file", new Blob([shot], { type: "image/png" }), `${slug}.png`);
+		const dj = await (await fetch(`${BASE}/_emdash/api/media`, { method: "POST", headers: Hauth, body: fd })).json();
+		mediaId = dj.data?.item?.id ?? dj.item?.id ?? dj.id;
+	}
+	if (!mediaId) {
+		log(`  ✗ upload failed for ${blk.type}; skipping`);
+		continue;
+	}
 	log(`  uploaded mediaId=${mediaId}`);
 
 	// 3. (re)create the section

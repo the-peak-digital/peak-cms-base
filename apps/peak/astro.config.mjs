@@ -1,46 +1,26 @@
-import node from "@astrojs/node";
+import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
+import { d1, r2 } from "@emdash-cms/cloudflare";
 import { defineConfig } from "astro/config";
-import emdash, { local, s3 } from "emdash/astro";
-import { postgres, sqlite } from "emdash/db";
+import emdash from "emdash/astro";
 
-// Load ./.env into process.env for local dev (Node 24 built-in). On Railway / CF
-// the vars are already in process.env, so the missing-file case is a no-op.
-try {
-	process.loadEnvFile();
-} catch {
-	// no .env file — fine, rely on the real process.env
-}
-const get = (k) => process.env[k];
-
-// Database: Postgres (Railway) when DATABASE_URL is set, else local SQLite.
-const database = get("DATABASE_URL")
-	? postgres({ connectionString: get("DATABASE_URL") })
-	: sqlite({ url: "file:./data.db" });
-
-// Storage: Cloudflare R2 (S3 API) when an R2 bucket is configured, else local
-// uploads. R2 endpoint looks like https://<accountid>.r2.cloudflarestorage.com
-// and region must be "auto".
-const storage = get("S3_BUCKET")
-	? s3({
-			endpoint: get("S3_ENDPOINT"),
-			bucket: get("S3_BUCKET"),
-			accessKeyId: get("S3_ACCESS_KEY_ID"),
-			secretAccessKey: get("S3_SECRET_ACCESS_KEY"),
-			region: get("S3_REGION") || "auto",
-			// Public base URL for serving media (r2.dev or a custom domain).
-			publicUrl: get("S3_PUBLIC_URL"),
-		})
-	: local({ directory: "./uploads", baseUrl: "/_emdash/api/media/file" });
-
+// Peak runs entirely on Cloudflare: Workers (SSR) + D1 (database) + R2 (media).
+// Bindings (DB, MEDIA) are declared in wrangler.jsonc; `astro dev` reads them and
+// serves against LOCAL emulated D1/R2, and `wrangler deploy` runs against the
+// real ones. Migrations + seed apply automatically on first request.
 export default defineConfig({
 	output: "server",
-	adapter: node({ mode: "standalone" }),
+	adapter: cloudflare(),
+	image: {
+		layout: "constrained",
+		responsiveStyles: true,
+	},
 	integrations: [
 		react(),
 		emdash({
-			database,
-			storage,
+			// session: "auto" routes reads to the nearest D1 replica.
+			database: d1({ binding: "DB", session: "auto" }),
+			storage: r2({ binding: "MEDIA" }),
 			plugins: [
 				{
 					id: "peak-blocks",
