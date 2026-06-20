@@ -159,45 +159,59 @@ for (const blk of targets) {
 
 await browser.close();
 
-// ── upsert the demo page ────────────────────────────────────────────────────
-// Derive prefix from the first block name (Services1 -> services).
-const prefix = done[0].name.replace(/\d+$/, "").toLowerCase();
-const pageSlug = demoSlug ?? `${prefix}-demo`;
-const pageTitle = `${prefix.charAt(0).toUpperCase() + prefix.slice(1)} Demo`;
+// ── upsert demo page(s) — one per block family (prefix) ─────────────────────
+// e.g. all hero* -> /hero-demo, all services* -> /services-demo. (--demo only
+// applies when a single family is processed.)
+const groups = {};
+for (const d of done) {
+	const prefix = d.name.replace(/\d+$/, "").toLowerCase();
+	(groups[prefix] ??= []).push(d);
+}
+const slugFor = (prefix) => (demoSlug && Object.keys(groups).length === 1 ? demoSlug : `demo-${prefix}`);
 
-const list = await (await fetch(`${BASE}/_emdash/api/content/pages`, { headers: Hauth })).json();
-const existing = (list.data?.items ?? list.items ?? []).find((p) => p.slug === pageSlug);
+const pageList = await (await fetch(`${BASE}/_emdash/api/content/pages`, { headers: Hauth })).json();
+const existingPages = pageList.data?.items ?? pageList.items ?? [];
+const demoPages = []; // slugs we touched, for verification
 
-const newNodes = done.map((d) => ({ ...d.node, _key: key() }));
-if (existing) {
-	const full = await (
-		await fetch(`${BASE}/_emdash/api/content/pages/${existing.id}`, { headers: Hauth })
-	).json();
-	const item = full.data?.item ?? full.item;
-	const rev = full.data?._rev ?? full._rev ?? item._rev;
-	const prev = (item.data?.content ?? []).filter((b) => !done.some((d) => d.type === b._type));
-	const content = [...newNodes, ...prev]; // newest first, de-duped by _type
-	await fetch(`${BASE}/_emdash/api/content/pages/${existing.id}`, {
-		method: "PUT",
-		headers: Hjson,
-		body: JSON.stringify({ data: { ...item.data, content }, _rev: rev }),
-	});
-	await fetch(`${BASE}/_emdash/api/content/pages/${existing.id}/publish`, { method: "POST", headers: Hjson, body: "{}" });
-	log(`demo page ✓ updated + published /${pageSlug} (${content.length} blocks)`);
-} else {
-	const cres = await fetch(`${BASE}/_emdash/api/content/pages`, {
-		method: "POST",
-		headers: Hjson,
-		body: JSON.stringify({ slug: pageSlug, data: { title: pageTitle, content: newNodes } }),
-	});
-	const cj = await cres.json();
-	const id = cj.data?.item?.id ?? cj.item?.id ?? cj.data?.id ?? cj.id;
-	if (!id) {
-		console.error(`✗ create page failed: ${cres.status} ${JSON.stringify(cj).slice(0, 300)}`);
-		process.exit(1);
+for (const [prefix, members] of Object.entries(groups)) {
+	const pageSlug = slugFor(prefix);
+	const pageTitle = `${prefix.charAt(0).toUpperCase() + prefix.slice(1)} Demo`;
+	const newNodes = members
+		.slice()
+		.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
+		.map((d) => ({ ...d.node, _key: key() }));
+	const existing = existingPages.find((p) => p.slug === pageSlug);
+	if (existing) {
+		const full = await (
+			await fetch(`${BASE}/_emdash/api/content/pages/${existing.id}`, { headers: Hauth })
+		).json();
+		const item = full.data?.item ?? full.item;
+		const rev = full.data?._rev ?? full._rev ?? item._rev;
+		const prev = (item.data?.content ?? []).filter((b) => !members.some((d) => d.type === b._type));
+		const content = [...newNodes, ...prev];
+		await fetch(`${BASE}/_emdash/api/content/pages/${existing.id}`, {
+			method: "PUT",
+			headers: Hjson,
+			body: JSON.stringify({ data: { ...item.data, content }, _rev: rev }),
+		});
+		await fetch(`${BASE}/_emdash/api/content/pages/${existing.id}/publish`, { method: "POST", headers: Hjson, body: "{}" });
+		log(`demo page ✓ updated + published /${pageSlug} (${content.length} blocks)`);
+	} else {
+		const cres = await fetch(`${BASE}/_emdash/api/content/pages`, {
+			method: "POST",
+			headers: Hjson,
+			body: JSON.stringify({ slug: pageSlug, data: { title: pageTitle, content: newNodes } }),
+		});
+		const cj = await cres.json();
+		const id = cj.data?.item?.id ?? cj.item?.id ?? cj.data?.id ?? cj.id;
+		if (!id) {
+			console.error(`✗ create page failed: ${cres.status} ${JSON.stringify(cj).slice(0, 300)}`);
+			process.exit(1);
+		}
+		await fetch(`${BASE}/_emdash/api/content/pages/${id}/publish`, { method: "POST", headers: Hjson, body: "{}" });
+		log(`demo page ✓ created + published /${pageSlug} (${newNodes.length} blocks)`);
 	}
-	await fetch(`${BASE}/_emdash/api/content/pages/${id}/publish`, { method: "POST", headers: Hjson, body: "{}" });
-	log(`demo page ✓ created + published /${pageSlug} (${newNodes.length} blocks)`);
+	demoPages.push(pageSlug);
 }
 
 // ── verify the published page keeps each block's styles WITH JS ON ──────────
@@ -215,25 +229,28 @@ async function firstClass(Name) {
 }
 const vbrowser = await chromium.launch();
 const vpage = await (await vbrowser.newContext({ viewport: { width: 1440, height: 1000 } })).newPage();
-await vpage.goto(`${BASE}/${pageSlug}`, { waitUntil: "networkidle" });
-await vpage.waitForTimeout(2000);
 let allOk = true;
-for (const d of done) {
-	const Name = d.name.charAt(0).toUpperCase() + d.name.slice(1);
-	const cls = await firstClass(Name);
-	const styled = cls
-		? await vpage.evaluate(
-				(c) => [...document.querySelectorAll("style")].some((s) => s.textContent.includes(`.${c}`)),
-				cls,
-			)
-		: false;
-	log(`  verify ${d.type}: ${styled ? "✓ styled (JS on)" : "✗ UNSTYLED — styles dropped on the client!"}`);
-	if (!styled) allOk = false;
+for (const pageSlug of demoPages) {
+	await vpage.goto(`${BASE}/${pageSlug}`, { waitUntil: "networkidle" });
+	await vpage.waitForTimeout(1500);
+	const prefix = pageSlug.replace(/^demo-/, "");
+	const members = done.filter((d) => d.name.replace(/\d+$/, "").toLowerCase() === prefix);
+	for (const d of members) {
+		const Name = d.name.charAt(0).toUpperCase() + d.name.slice(1);
+		const cls = await firstClass(Name);
+		const styled = cls
+			? await vpage.evaluate(
+					(c) => [...document.querySelectorAll("style")].some((s) => s.textContent.includes(`.${c}`)),
+					cls,
+				)
+			: false;
+		log(`  verify ${d.type}: ${styled ? "✓" : "✗ UNSTYLED"}`);
+		if (!styled) allOk = false;
+	}
 }
 await vbrowser.close();
 
-log(`done: ${done.map((d) => d.type).join(", ")}`);
-log(`→ section picker: /_emdash/admin/sections   live demo: ${BASE}/${pageSlug}`);
+log(`done: ${demoPages.map((s) => `${BASE}/${s}`).join("  ")}`);
 if (!allOk) {
 	console.error(
 		"[make-section] ✗ A block is UNSTYLED in a real browser. Edit its .astro (any change) to bust the\n" +
