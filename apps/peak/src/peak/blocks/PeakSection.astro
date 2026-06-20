@@ -69,9 +69,10 @@ const innerStyle = !bgOnOuter && background ? `background:${background}` : undef
 		width: 100vw;
 		margin-inline: calc(50% - 50vw);
 	}
-	/* full: content also spans edge-to-edge (just a little breathing room) */
+	/* full: content spans truly edge-to-edge — no side gutter. Blocks provide
+	   their own inner padding, so sections fill the viewport with no margins. */
 	.peak-sec--full > .peak-sec__inner {
-		padding-inline: var(--peak-gutter, 1.5rem);
+		padding-inline: 0;
 		box-sizing: border-box;
 	}
 </style>
