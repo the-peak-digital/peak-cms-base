@@ -21,6 +21,10 @@ export default defineConfig({
 			// session: "auto" routes reads to the nearest D1 replica.
 			database: d1({ binding: "DB", session: "auto" }),
 			storage: r2({ binding: "MEDIA" }),
+			// Expose the built-in MCP server at /_emdash/api/mcp so AI tools
+			// (Claude, etc.) can manage this site's content. Auth via OAuth or a
+			// Personal Access Token created in the admin panel.
+			mcp: true,
 			plugins: [
 				{
 					id: "peak-blocks",
