@@ -58,10 +58,19 @@ for (const n of names) touchBlock(n);
 if (names.length) await sleep(1500); // let the dev server re-transform
 
 // ── auth ──────────────────────────────────────────────────────────────────
-const auth = await fetch(`${BASE}/_emdash/api/setup/dev-bypass?token=1`);
-const cookie = (auth.headers.get("set-cookie") || "").split(";")[0];
-const Hjson = { "Content-Type": "application/json", "X-EmDash-Request": "1", Cookie: cookie };
-const Hauth = { "X-EmDash-Request": "1", Cookie: cookie };
+// PEAK_PAT (ec_pat_*) → Bearer auth, for production where dev-bypass is off.
+// Otherwise the local dev-bypass session.
+let Hjson, Hauth;
+if (process.env.PEAK_PAT) {
+	const bearer = `Bearer ${process.env.PEAK_PAT}`;
+	Hjson = { "Content-Type": "application/json", "X-EmDash-Request": "1", Authorization: bearer };
+	Hauth = { "X-EmDash-Request": "1", Authorization: bearer };
+} else {
+	const auth = await fetch(`${BASE}/_emdash/api/setup/dev-bypass?token=1`);
+	const cookie = (auth.headers.get("set-cookie") || "").split(";")[0];
+	Hjson = { "Content-Type": "application/json", "X-EmDash-Request": "1", Cookie: cookie };
+	Hauth = { "X-EmDash-Request": "1", Cookie: cookie };
+}
 
 // ── render + read samples off the preview page ──────────────────────────────
 const browser = await chromium.launch();
@@ -227,10 +236,12 @@ async function firstClass(Name) {
 	const m = css.match(/\.([a-zA-Z0-9_-]+)\[data-astro-cid/);
 	return m?.[1] ?? null;
 }
-const vbrowser = await chromium.launch();
-const vpage = await (await vbrowser.newContext({ viewport: { width: 1440, height: 1000 } })).newPage();
+// The verify step probes dev-only Vite style URLs, so it only runs locally.
+const isLocal = BASE.includes("localhost") || BASE.includes("127.0.0.1");
+const vbrowser = isLocal ? await chromium.launch() : null;
+const vpage = vbrowser ? await (await vbrowser.newContext({ viewport: { width: 1440, height: 1000 } })).newPage() : null;
 let allOk = true;
-for (const pageSlug of demoPages) {
+for (const pageSlug of isLocal ? demoPages : []) {
 	await vpage.goto(`${BASE}/${pageSlug}`, { waitUntil: "networkidle" });
 	await vpage.waitForTimeout(1500);
 	const prefix = pageSlug.replace(/^demo-/, "");
@@ -248,7 +259,7 @@ for (const pageSlug of demoPages) {
 		if (!styled) allOk = false;
 	}
 }
-await vbrowser.close();
+if (vbrowser) await vbrowser.close();
 
 log(`done: ${demoPages.map((s) => `${BASE}/${s}`).join("  ")}`);
 if (!allOk) {
