@@ -1232,6 +1232,52 @@ export function createMcpServer(): McpServer {
 	);
 
 	server.registerTool(
+		"blocks_list",
+		{
+			title: "List Content Blocks",
+			description:
+				"List the rich-content blocks registered by plugins that can be placed inside " +
+				"a portableText field (e.g. a page's `content`). Each entry has a `type` (use " +
+				"as the block's `_type`), a `label`/`description`, a `category`, and `fields` " +
+				"describing its editable properties. To build a block-composed page: pick the " +
+				"blocks that best fit the brief, then pass content_create/content_update a " +
+				'`data.content` array of block objects like { "_type": <type>, "_key": ' +
+				'<unique-id>, ...field values }, in display order.',
+			inputSchema: z.object({
+				category: z
+					.string()
+					.optional()
+					.describe("Filter to a single category (e.g. 'Sections')"),
+			}),
+			annotations: { readOnlyHint: true },
+		},
+		async (args, extra) => {
+			requireScope(extra, "content:read");
+			const ec = getEmDash(extra);
+			try {
+				const manifest = await ec.getManifest();
+				const blocks: Array<Record<string, unknown>> = [];
+				for (const plugin of Object.values(manifest.plugins ?? {})) {
+					if (plugin.enabled === false) continue;
+					for (const b of plugin.portableTextBlocks ?? []) {
+						if (args.category && b.category !== args.category) continue;
+						blocks.push({
+							type: b.type,
+							label: b.label,
+							description: b.description,
+							category: b.category,
+							fields: b.fields,
+						});
+					}
+				}
+				return jsonResult({ blocks, count: blocks.length });
+			} catch (error) {
+				return respondHandlerError(error, "BLOCKS_LIST_ERROR");
+			}
+		},
+	);
+
+	server.registerTool(
 		"schema_create_collection",
 		{
 			title: "Create Collection",
