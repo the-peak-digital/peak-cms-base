@@ -30,7 +30,9 @@ interface Props {
 }
 
 const { node = {}, class: innerClass, background } = Astro.props;
-const width = node.width ?? "contained";
+// Sections default to full width (full-bleed element + content). Editors can
+// switch a block back to "Normal" (contained) or "Full background" per-block.
+const width = node.width ?? "full";
 const scale = FONT_SIZE_SCALE[node.fontSize ?? "md"] ?? 1;
 
 // Background goes on whichever layer is the visible "band":
