@@ -11,6 +11,7 @@
 		{
 			"binding": "DB",
 			"database_name": "peak-cms-db",
+			"database_id": "0f783a3c-fa4a-4c14-905a-809f4a21f7db",
 		},
 	],
 
@@ -22,12 +23,20 @@
 		},
 	],
 
-	// Worker Loader for EmDash plugin sandboxing.
-	"worker_loaders": [
+	// Astro sessions (auto-required by @astrojs/cloudflare). Declared explicitly so
+	// deploys reuse the existing namespace instead of trying to re-create it.
+	"kv_namespaces": [
 		{
-			"binding": "LOADER",
+			"binding": "SESSION",
+			"id": "cf7603ef13ae4780871bcdcf49d4f25c",
 		},
 	],
+
+	// NOTE: EmDash plugin sandboxing uses a Worker Loader ("LOADER" binding), but
+	// Dynamic Workers require a PAID Workers plan. Omitted so the base site deploys
+	// on the free plan — trusted plugins (peak-blocks) still run in the host worker.
+	// Add back on a paid plan to enable sandboxed plugins:
+	//   "worker_loaders": [{ "binding": "LOADER" }],
 
 	// Drives scheduled publishing, plugin cron, and maintenance (see src/worker.ts).
 	"triggers": {
