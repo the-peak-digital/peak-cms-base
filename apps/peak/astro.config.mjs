@@ -3,7 +3,6 @@ import react from "@astrojs/react";
 import { d1, r2 } from "@emdash-cms/cloudflare";
 import { defineConfig } from "astro/config";
 import emdash from "emdash/astro";
-import { google } from "emdash/auth/providers/google";
 
 // Peak runs entirely on Cloudflare: Workers (SSR) + D1 (database) + R2 (media).
 // Bindings (DB, MEDIA) are declared in wrangler.jsonc; `astro dev` reads them and
@@ -22,9 +21,6 @@ export default defineConfig({
 			// session: "auto" routes reads to the nearest D1 replica.
 			database: d1({ binding: "DB", session: "auto" }),
 			storage: r2({ binding: "MEDIA" }),
-			// "Sign in with Google" — no passkey needed. Reads GOOGLE_CLIENT_ID /
-			// GOOGLE_CLIENT_SECRET (set as wrangler secrets). Passkeys still work too.
-			authProviders: [google()],
 			// Expose the built-in MCP server at /_emdash/api/mcp so AI tools
 			// (Claude, etc.) can manage this site's content. Auth via OAuth or a
 			// Personal Access Token created in the admin panel.
