@@ -563,6 +563,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 					handleContentCreate: runtime.handleContentCreate.bind(runtime),
 					handleContentUpdate: runtime.handleContentUpdate.bind(runtime),
 					handleContentDelete: runtime.handleContentDelete.bind(runtime),
+					handleContentAuthors: runtime.handleContentAuthors.bind(runtime),
 
 					// Trash handlers
 					handleContentListTrashed: runtime.handleContentListTrashed.bind(runtime),
