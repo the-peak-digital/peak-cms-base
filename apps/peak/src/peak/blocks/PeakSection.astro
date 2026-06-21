@@ -37,7 +37,7 @@ interface Props {
 	 *   "contained"-> boxed to --peak-wide
 	 * Editors can still override per-section via the Width field.
 	 */
-	defaultWidth?: "contained" | "full-bg" | "full";
+	defaultWidth?: "contained" | "full-bg" | "full" | "bleed";
 }
 
 const { node = {}, class: innerClass, background, defaultWidth = "full-bg" } = Astro.props;
@@ -50,7 +50,7 @@ const cw = CONTENT_WIDTH_VALUES[node.contentWidth ?? "default"];
 // Background goes on whichever layer is the visible "band":
 //   contained -> the inner column (bg behind content only)
 //   full-bg / full -> the full-width outer element (bg edge-to-edge)
-const bgOnOuter = width === "full-bg" || width === "full";
+const bgOnOuter = width === "full-bg" || width === "full" || width === "bleed";
 const outerStyle = [
 	`--peak-font-scale:${scale}`,
 	bgOnOuter && background ? `background:${background}` : "",
@@ -78,9 +78,10 @@ const innerStyle =
 		padding-inline: var(--peak-gutter, 1.5rem);
 		box-sizing: border-box;
 	}
-	/* full-bg + full: break out to the full viewport width */
+	/* full-bg + full + bleed: break out to the full viewport width */
 	.peak-sec--full-bg,
-	.peak-sec--full {
+	.peak-sec--full,
+	.peak-sec--bleed {
 		width: 100vw;
 		margin-inline: calc(50% - 50vw);
 	}
@@ -89,6 +90,12 @@ const innerStyle =
 	   galleries) do their own 100vw breakout, which cancels this gutter. */
 	.peak-sec--full > .peak-sec__inner {
 		padding-inline: var(--peak-gutter, 1.5rem);
+		box-sizing: border-box;
+	}
+	/* bleed: element AND content edge-to-edge, ZERO gutter — for full-cover
+	   image/media blocks whose own inner element handles text padding. */
+	.peak-sec--bleed > .peak-sec__inner {
+		padding-inline: 0;
 		box-sizing: border-box;
 	}
 </style>

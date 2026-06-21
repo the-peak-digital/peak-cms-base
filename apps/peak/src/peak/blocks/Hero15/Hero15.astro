@@ -6,11 +6,11 @@ const node = (Astro.props.node ?? {}) as Hero15Props;
 const { image, imageAlt, phone, statValue, statLabel, ratingLabel, title, subtitle, agentPhoto, agentRole, agentName, thumbs } = node;
 const thumbList = Array.isArray(thumbs) ? thumbs.filter((t) => t?.url) : [];
 const stack = thumbList.slice(0, 3);
-const secNode = { ...node, width: (node as any).width || "full" };
+const secNode = { ...node, width: (node as any).width || "bleed" };
 const rots = [5, 11, 18];
 ---
 
-<PeakSection node={secNode} defaultWidth="full">
+<PeakSection node={secNode} defaultWidth="bleed">
 	<div class="he">
 		{image && <img class="he__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="he__overlay"></div>

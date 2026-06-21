@@ -6,7 +6,7 @@ const node = (Astro.props.node ?? {}) as Hero4Props;
 const { title, body, buttonText, buttonUrl, image, imageAlt, stats } = node;
 const statList = Array.isArray(stats) ? stats.filter((s) => s?.value || s?.label) : [];
 const hasCta = Boolean(buttonText && buttonUrl);
-const secNode = { ...node, width: (node as any).width || "full" };
+const secNode = { ...node, width: (node as any).width || "bleed" };
 
 // Displacement map = repeating horizontal gradient (black→white→black per rib),
 // so feDisplacementMap bends the image left/right through each vertical rib —
@@ -18,7 +18,7 @@ const ribMap =
 	);
 ---
 
-<PeakSection node={secNode} defaultWidth="full">
+<PeakSection node={secNode} defaultWidth="bleed">
 	<div class="h4">
 		{image && <img class="h4__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="h4__play" aria-hidden="true"></div>

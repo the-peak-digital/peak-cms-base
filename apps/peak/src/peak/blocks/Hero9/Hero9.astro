@@ -4,10 +4,10 @@ import PeakSection from "../PeakSection.astro";
 
 const node = (Astro.props.node ?? {}) as Hero9Props;
 const { videoUrl, poster, posterAlt, title, subtitle, primaryText, primaryUrl, secondaryText, secondaryUrl, footerText } = node;
-const secNode = { ...node, width: (node as any).width || "full" };
+const secNode = { ...node, width: (node as any).width || "bleed" };
 ---
 
-<PeakSection node={secNode} defaultWidth="full">
+<PeakSection node={secNode} defaultWidth="bleed">
 	<div class="hv">
 		{videoUrl ? (
 			<video class="hv__bg" autoplay loop muted playsinline poster={poster || undefined}>

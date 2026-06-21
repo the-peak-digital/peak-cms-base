@@ -5,10 +5,10 @@ import PeakSection from "../PeakSection.astro";
 const node = (Astro.props.node ?? {}) as Hero10Props;
 const { logo, logoAlt, title, links, bottomText, videoUrl, poster, posterAlt } = node;
 const linkList = Array.isArray(links) ? links.filter((l) => l?.label) : [];
-const secNode = { ...node, width: (node as any).width || "full" };
+const secNode = { ...node, width: (node as any).width || "bleed" };
 ---
 
-<PeakSection node={secNode} defaultWidth="full">
+<PeakSection node={secNode} defaultWidth="bleed">
 	<div class="hsp">
 		{videoUrl ? (
 			<video class="hsp__bg" autoplay loop muted playsinline poster={poster || undefined}>

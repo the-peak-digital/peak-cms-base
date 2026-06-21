@@ -8,10 +8,10 @@ const {
 	videoImage, videoUrl, reviewerName, reviewerDate, reviewerAvatar, rating = 5, reviewText, reviewImage, reviewUrl,
 } = node;
 const stars = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
-const secNode = { ...node, width: (node as any).width || "full" };
+const secNode = { ...node, width: (node as any).width || "bleed" };
 ---
 
-<PeakSection node={secNode} defaultWidth="full">
+<PeakSection node={secNode} defaultWidth="bleed">
 	<div class="cs">
 		{image && <img class="cs__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="cs__shade"></div>

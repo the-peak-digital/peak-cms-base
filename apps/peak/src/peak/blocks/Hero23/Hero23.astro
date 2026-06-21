@@ -8,10 +8,10 @@ const {
 	primaryText, primaryUrl, secondaryText, secondaryUrl,
 	formTitle, messagePlaceholder, submitText, formAction = "#", formBg = "#ead9bf",
 } = node;
-const secNode = { ...node, width: (node as any).width || "full" };
+const secNode = { ...node, width: (node as any).width || "bleed" };
 ---
 
-<PeakSection node={secNode} defaultWidth="full">
+<PeakSection node={secNode} defaultWidth="bleed">
 	<div class="kf" style={`--form-bg:${formBg}`}>
 		{image && <img class="kf__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="kf__shade"></div>

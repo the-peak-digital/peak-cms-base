@@ -10,10 +10,10 @@ const {
 const featureList = Array.isArray(features) ? features.filter((f) => f?.label) : [];
 const types = (projectTypes ?? "").split("\n").map((s) => s.trim()).filter(Boolean);
 const timings = (timingOptions ?? "").split("\n").map((s) => s.trim()).filter(Boolean);
-const secNode = { ...node, width: (node as any).width || "full" };
+const secNode = { ...node, width: (node as any).width || "bleed" };
 ---
 
-<PeakSection node={secNode} defaultWidth="full">
+<PeakSection node={secNode} defaultWidth="bleed">
 	<div class="hf">
 		{image && <img class="hf__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="hf__overlay"></div>

@@ -9,10 +9,10 @@ const {
 } = node;
 const avatarList = Array.isArray(avatars) ? avatars.filter((a) => a?.url).slice(0, 5) : [];
 const logoList = Array.isArray(logos) ? logos.filter((l) => l?.url) : [];
-const secNode = { ...node, width: (node as any).width || "full" };
+const secNode = { ...node, width: (node as any).width || "bleed" };
 ---
 
-<PeakSection node={secNode} defaultWidth="full">
+<PeakSection node={secNode} defaultWidth="bleed">
 	<div class="hx">
 		{image && <img class="hx__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="hx__inner">

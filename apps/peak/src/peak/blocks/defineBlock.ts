@@ -88,6 +88,7 @@ export const WIDTH_OPTIONS = [
 	{ label: "Normal", value: "contained" },
 	{ label: "Full background", value: "full-bg" },
 	{ label: "Full width", value: "full" },
+	{ label: "Full bleed (edge to edge)", value: "bleed" },
 ] as const;
 
 // Per-section content alignment width. "default" uses the global --peak-wide.

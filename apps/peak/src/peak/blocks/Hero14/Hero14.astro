@@ -6,11 +6,11 @@ const node = (Astro.props.node ?? {}) as Hero14Props;
 const { badgeText, badgeAvatars, title, primaryText, primaryUrl, phoneLabel, phone, trustItems, image, imageAlt, accent = "#f29022" } = node;
 const avatarList = Array.isArray(badgeAvatars) ? badgeAvatars.filter((a) => a?.url).slice(0, 4) : [];
 const trustList = Array.isArray(trustItems) ? trustItems.filter((t) => t?.text) : [];
-const secNode = { ...node, width: (node as any).width || "full" };
+const secNode = { ...node, width: (node as any).width || "bleed" };
 const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : "#";
 ---
 
-<PeakSection node={secNode} defaultWidth="full">
+<PeakSection node={secNode} defaultWidth="bleed">
 	<div class="ht">
 		{image && <img class="ht__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="ht__overlay"></div>

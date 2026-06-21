@@ -4,10 +4,10 @@ import PeakSection from "../PeakSection.astro";
 
 const node = (Astro.props.node ?? {}) as Hero6Props;
 const { eyebrow, title, body, primaryText, primaryUrl, secondaryText, secondaryUrl, image, imageAlt, uppercase = true } = node;
-const secNode = { ...node, width: (node as any).width || "full" };
+const secNode = { ...node, width: (node as any).width || "bleed" };
 ---
 
-<PeakSection node={secNode} defaultWidth="full">
+<PeakSection node={secNode} defaultWidth="bleed">
 	<div class="hc">
 		{image && <img class="hc__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="hc__overlay"></div>
