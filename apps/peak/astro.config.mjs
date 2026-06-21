@@ -15,6 +15,54 @@ export default defineConfig({
 		layout: "constrained",
 		responsiveStyles: true,
 	},
+	vite: {
+		// The admin SPA pulls in a huge dependency tree (TipTap, ECharts, Kumo,
+		// Lingui, dnd-kit). By default Vite discovers and bundles these LAZILY the
+		// first time you open /_emdash/admin — which stalls every request for a
+		// minute and then force-reloads (looks like a "freeze"). Pre-declaring them
+		// here makes Vite bundle them once at dev-server STARTUP instead, so the
+		// admin never freezes mid-session.
+		optimizeDeps: {
+			include: [
+				"@cloudflare/kumo",
+				"@cloudflare/kumo/primitives",
+				"@cloudflare/kumo/components/chart",
+				"@lingui/core",
+				"@lingui/react",
+				"@tanstack/react-query",
+				"@tanstack/react-router",
+				"clsx",
+				"tailwind-merge",
+				"@phosphor-icons/react",
+				"@dnd-kit/core",
+				"@dnd-kit/sortable",
+				"@dnd-kit/utilities",
+				"@floating-ui/react",
+				"react-hotkeys-hook",
+				"dompurify",
+				"marked",
+				"@atcute/identity-resolver",
+				"@tiptap/core",
+				"@tiptap/react",
+				"@tiptap/react/menus",
+				"@tiptap/starter-kit",
+				"@tiptap/suggestion",
+				"@tiptap/pm/state",
+				"@tiptap/extension-character-count",
+				"@tiptap/extension-focus",
+				"@tiptap/extension-placeholder",
+				"@tiptap/extension-table",
+				"@tiptap/extension-table-cell",
+				"@tiptap/extension-table-header",
+				"@tiptap/extension-table-row",
+				"@tiptap/extension-text-align",
+				"@tiptap/extension-typography",
+				"@tiptap/extension-link",
+				"@tiptap/extension-code-block",
+				"@tiptap/extension-drag-handle-react",
+			],
+		},
+	},
 	integrations: [
 		react(),
 		emdash({
