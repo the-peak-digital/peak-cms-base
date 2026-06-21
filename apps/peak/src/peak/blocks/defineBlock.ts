@@ -90,6 +90,23 @@ export const WIDTH_OPTIONS = [
 	{ label: "Full width", value: "full" },
 ] as const;
 
+// Per-section content alignment width. "default" uses the global --peak-wide.
+export const CONTENT_WIDTH_OPTIONS = [
+	{ label: "Default (site width)", value: "default" },
+	{ label: "Narrow", value: "narrow" },
+	{ label: "Medium", value: "medium" },
+	{ label: "Wide", value: "wide" },
+	{ label: "Full (no max width)", value: "full" },
+] as const;
+
+/** value -> max-width applied to the section's content (overrides --peak-wide). */
+export const CONTENT_WIDTH_VALUES: Record<string, string> = {
+	narrow: "760px",
+	medium: "980px",
+	wide: "1320px",
+	full: "100%",
+};
+
 const COMMON_FIELDS: Record<string, FieldDef> = {
 	fontSize: {
 		type: "select",
@@ -102,6 +119,12 @@ const COMMON_FIELDS: Record<string, FieldDef> = {
 		label: "Width",
 		options: WIDTH_OPTIONS,
 		default: "full-bg",
+	},
+	contentWidth: {
+		type: "select",
+		label: "Content width",
+		options: CONTENT_WIDTH_OPTIONS,
+		default: "default",
 	},
 };
 

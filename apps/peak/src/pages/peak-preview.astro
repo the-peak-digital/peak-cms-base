@@ -37,7 +37,12 @@ const blocks = Object.entries(samples)
 // ?w=full | contained | full-bg  — override every block's width to compare modes.
 // Omit ?w to use each block's own default.
 const w = Astro.url.searchParams.get("w");
-const nodeFor = (sample: Record<string, unknown>) => (w ? { ...sample, width: w } : sample);
+const cw = Astro.url.searchParams.get("cw"); // narrow|medium|wide|full|default
+const nodeFor = (sample: Record<string, unknown>) => ({
+	...sample,
+	...(w ? { width: w } : {}),
+	...(cw ? { contentWidth: cw } : {}),
+});
 ---
 
 <html lang="en">

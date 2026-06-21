@@ -19,10 +19,10 @@
  *
  * Pass `background` for full-bg colored bands; it sits on the full-width element.
  */
-import { FONT_SIZE_SCALE } from "./defineBlock";
+import { FONT_SIZE_SCALE, CONTENT_WIDTH_VALUES } from "./defineBlock";
 
 interface Props {
-	node?: { width?: string; fontSize?: string };
+	node?: { width?: string; fontSize?: string; contentWidth?: string };
 	/** Extra class on the inner content element. */
 	class?: string;
 	/** Background applied to the (possibly full-width) outer element. */
@@ -34,6 +34,8 @@ const { node = {}, class: innerClass, background } = Astro.props;
 // switch a block back to "Normal" (contained) or "Full background" per-block.
 const width = node.width ?? "full-bg";
 const scale = FONT_SIZE_SCALE[node.fontSize ?? "md"] ?? 1;
+// Per-section content width: override the global --peak-wide for this block only.
+const cw = CONTENT_WIDTH_VALUES[node.contentWidth ?? "default"];
 
 // Background goes on whichever layer is the visible "band":
 //   contained -> the inner column (bg behind content only)
@@ -45,7 +47,10 @@ const outerStyle = [
 ]
 	.filter(Boolean)
 	.join(";");
-const innerStyle = !bgOnOuter && background ? `background:${background}` : undefined;
+const innerStyle =
+	[!bgOnOuter && background ? `background:${background}` : "", cw ? `--peak-wide:${cw}` : ""]
+		.filter(Boolean)
+		.join(";") || undefined;
 ---
 
 <div class:list={["peak-sec", `peak-sec--${width}`]} style={outerStyle}>
