@@ -8,6 +8,11 @@ import emdash from "emdash/astro";
 // Bindings (DB, MEDIA) are declared in wrangler.jsonc; `astro dev` reads them and
 // serves against LOCAL emulated D1/R2, and `wrangler deploy` runs against the
 // real ones. Migrations + seed apply automatically on first request.
+// The D1 Sessions API (read replication) only works on real Cloudflare. The local
+// miniflare emulator hangs on the session-bookmark path for authenticated requests,
+// so enable it for builds/deploys only — not `astro dev`.
+const isDev = process.argv.includes("dev");
+
 export default defineConfig({
 	output: "server",
 	adapter: cloudflare(),
@@ -66,8 +71,9 @@ export default defineConfig({
 	integrations: [
 		react(),
 		emdash({
-			// session: "auto" routes reads to the nearest D1 replica.
-			database: d1({ binding: "DB", session: "auto" }),
+			// session: "auto" routes reads to the nearest D1 replica (prod only —
+			// see isDev note above; it hangs authenticated requests under miniflare).
+			database: d1({ binding: "DB", ...(isDev ? {} : { session: "auto" }) }),
 			storage: r2({ binding: "MEDIA" }),
 			// Expose the built-in MCP server at /_emdash/api/mcp so AI tools
 			// (Claude, etc.) can manage this site's content. Auth via OAuth or a
