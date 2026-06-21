@@ -101,7 +101,7 @@ const COMMON_FIELDS: Record<string, FieldDef> = {
 		type: "select",
 		label: "Width",
 		options: WIDTH_OPTIONS,
-		default: "full",
+		default: "full-bg",
 	},
 };
 
