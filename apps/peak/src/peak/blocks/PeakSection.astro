@@ -74,10 +74,11 @@ const innerStyle =
 		width: 100vw;
 		margin-inline: calc(50% - 50vw);
 	}
-	/* full: content spans truly edge-to-edge — no side gutter. Blocks provide
-	   their own inner padding, so sections fill the viewport with no margins. */
+	/* full: content fills the viewport but keeps a small safe gutter so text
+	   never touches the screen edge. Truly full-bleed blocks (images, scroll
+	   galleries) do their own 100vw breakout, which cancels this gutter. */
 	.peak-sec--full > .peak-sec__inner {
-		padding-inline: 0;
+		padding-inline: var(--peak-gutter, 1.5rem);
 		box-sizing: border-box;
 	}
 </style>
