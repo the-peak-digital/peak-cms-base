@@ -10,7 +10,7 @@ const secNode = { ...node, width: (node as any).width || "full" };
 const rots = [5, 11, 18];
 ---
 
-<PeakSection node={secNode}>
+<PeakSection node={secNode} defaultWidth="full">
 	<div class="he">
 		{image && <img class="he__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="he__overlay"></div>

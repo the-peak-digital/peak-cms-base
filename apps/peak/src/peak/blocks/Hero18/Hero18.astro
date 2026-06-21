@@ -13,7 +13,7 @@ const tagList = Array.isArray(tags) ? tags.filter((t) => t?.label) : [];
 const avatarList = Array.isArray(avatars) ? avatars.filter((a) => a?.url).slice(0, 4) : [];
 ---
 
-<PeakSection node={node}>
+<PeakSection node={node} defaultWidth="full">
 	<div class="hx">
 		{image && <img class="hx__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="hx__shade"></div>

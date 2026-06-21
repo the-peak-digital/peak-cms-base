@@ -7,7 +7,7 @@ const { videoUrl, poster, posterAlt, title, subtitle, primaryText, primaryUrl, s
 const secNode = { ...node, width: (node as any).width || "full" };
 ---
 
-<PeakSection node={secNode}>
+<PeakSection node={secNode} defaultWidth="full">
 	<div class="hv">
 		{videoUrl ? (
 			<video class="hv__bg" autoplay loop muted playsinline poster={poster || undefined}>

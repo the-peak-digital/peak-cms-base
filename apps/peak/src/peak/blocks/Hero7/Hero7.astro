@@ -10,7 +10,7 @@ const stars = (n?: string) => "★".repeat(Math.max(0, Math.min(5, Number(n ?? 5
 const secNode = { ...node, width: (node as any).width || "full" };
 ---
 
-<PeakSection node={secNode} background="linear-gradient(90deg, #a9e7d6 0%, #f5fcf9 32%, #f5fcf9 68%, #a9e7d6 100%)">
+<PeakSection node={secNode} defaultWidth="full" background="linear-gradient(90deg, #a9e7d6 0%, #f5fcf9 32%, #f5fcf9 68%, #a9e7d6 100%)">
 	<div class="h7">
 		{sideLeft && <img class="h7__side h7__side--l" src={sideLeft} alt="" aria-hidden="true" />}
 		{sideRight && <img class="h7__side h7__side--r" src={sideRight} alt="" aria-hidden="true" />}

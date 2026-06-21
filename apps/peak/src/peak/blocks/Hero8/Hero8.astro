@@ -13,7 +13,7 @@ const timings = (timingOptions ?? "").split("\n").map((s) => s.trim()).filter(Bo
 const secNode = { ...node, width: (node as any).width || "full" };
 ---
 
-<PeakSection node={secNode}>
+<PeakSection node={secNode} defaultWidth="full">
 	<div class="hf">
 		{image && <img class="hf__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="hf__overlay"></div>

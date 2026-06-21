@@ -17,7 +17,7 @@ const avatars = Array.isArray(patientsAvatars) ? patientsAvatars.filter((a) => a
 const badgeList = Array.isArray(badges) ? badges.filter((b) => b?.label) : [];
 ---
 
-<PeakSection node={node} background="radial-gradient(120% 120% at 80% 10%, #0e3a4a 0%, #0a1f2e 55%, #061521 100%)">
+<PeakSection node={node} defaultWidth="full" background="radial-gradient(120% 120% at 80% 10%, #0e3a4a 0%, #0a1f2e 55%, #061521 100%)">
 	<div class="h3">
 		<div class="h3__left">
 			<h1 class="h3__title">{titlePart1} <em class="h3__em">{emphasis}</em> {titlePart2}</h1>

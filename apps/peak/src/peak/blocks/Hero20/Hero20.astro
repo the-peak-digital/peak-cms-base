@@ -12,7 +12,7 @@ const stars = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
 const avatarList = Array.isArray(clientsAvatars) ? clientsAvatars.filter((a) => a?.url).slice(0, 5) : [];
 ---
 
-<PeakSection node={node}>
+<PeakSection node={node} defaultWidth="full">
 	<div class="ed" style={`--accent:${accent}`}>
 		<div class="ed__left">
 			{badge && (

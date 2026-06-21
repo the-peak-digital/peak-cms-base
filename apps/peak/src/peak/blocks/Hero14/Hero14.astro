@@ -10,7 +10,7 @@ const secNode = { ...node, width: (node as any).width || "full" };
 const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : "#";
 ---
 
-<PeakSection node={secNode}>
+<PeakSection node={secNode} defaultWidth="full">
 	<div class="ht">
 		{image && <img class="ht__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="ht__overlay"></div>

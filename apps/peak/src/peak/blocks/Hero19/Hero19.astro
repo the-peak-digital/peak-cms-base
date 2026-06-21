@@ -7,7 +7,7 @@ const { videoUrl, poster, posterAlt, rating, ratingText, avatars, title, body, b
 const avatarList = Array.isArray(avatars) ? avatars.filter((a) => a?.url).slice(0, 4) : [];
 ---
 
-<PeakSection node={node}>
+<PeakSection node={node} defaultWidth="full">
 	<div class="mv">
 		{videoUrl ? (
 			<video class="mv__bg" autoplay muted loop playsinline poster={poster}>

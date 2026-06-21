@@ -11,7 +11,7 @@ const linkList = Array.isArray(links) ? links.filter((l) => l?.label) : [];
 const addressLines = (address ?? "").split("\n").filter(Boolean);
 ---
 
-<PeakSection node={node}>
+<PeakSection node={node} defaultWidth="full">
 	<div class="hm">
 		{image && <img class="hm__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="hm__veil"></div>

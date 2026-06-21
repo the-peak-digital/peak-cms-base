@@ -7,7 +7,7 @@ const { title, buttonText, buttonUrl, tagline, image, imageAlt, accent = "#f4e00
 const secNode = { ...node, width: (node as any).width || "full" };
 ---
 
-<PeakSection node={secNode}>
+<PeakSection node={secNode} defaultWidth="full">
 	<div class="hbt">
 		{image && <img class="hbt__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="hbt__overlay"></div>

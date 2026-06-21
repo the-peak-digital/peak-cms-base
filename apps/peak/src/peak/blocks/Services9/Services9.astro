@@ -8,7 +8,7 @@ const { title, cards } = node;
 const cardList = Array.isArray(cards) ? cards.filter((c) => c?.image || c?.label) : [];
 ---
 
-<PeakSection node={node}>
+<PeakSection node={node} defaultWidth="full">
 	<div class="ps9">
 		<div class="ps9__pin">
 			<div class="ps9__stage">

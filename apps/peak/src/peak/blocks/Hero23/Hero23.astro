@@ -11,7 +11,7 @@ const {
 const secNode = { ...node, width: (node as any).width || "full" };
 ---
 
-<PeakSection node={secNode}>
+<PeakSection node={secNode} defaultWidth="full">
 	<div class="kf" style={`--form-bg:${formBg}`}>
 		{image && <img class="kf__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="kf__shade"></div>

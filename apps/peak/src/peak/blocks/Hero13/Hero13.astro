@@ -12,7 +12,7 @@ const logoList = Array.isArray(logos) ? logos.filter((l) => l?.url) : [];
 const secNode = { ...node, width: (node as any).width || "full" };
 ---
 
-<PeakSection node={secNode}>
+<PeakSection node={secNode} defaultWidth="full">
 	<div class="hx">
 		{image && <img class="hx__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="hx__inner">

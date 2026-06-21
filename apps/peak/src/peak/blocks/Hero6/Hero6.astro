@@ -7,7 +7,7 @@ const { eyebrow, title, body, primaryText, primaryUrl, secondaryText, secondaryU
 const secNode = { ...node, width: (node as any).width || "full" };
 ---
 
-<PeakSection node={secNode}>
+<PeakSection node={secNode} defaultWidth="full">
 	<div class="hc">
 		{image && <img class="hc__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
 		<div class="hc__overlay"></div>

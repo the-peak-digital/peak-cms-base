@@ -27,12 +27,22 @@ interface Props {
 	class?: string;
 	/** Background applied to the (possibly full-width) outer element. */
 	background?: string;
+	/**
+	 * The block's own intended width when the editor hasn't chosen one. Each block
+	 * declares this based on its design — there's no single global answer:
+	 *   "full"     -> full-bleed, the block owns its layout edge-to-edge
+	 *                 (split heroes, image walls, scroll galleries)
+	 *   "full-bg"  -> full-width band, content aligned to --peak-wide (default;
+	 *                 most content sections)
+	 *   "contained"-> boxed to --peak-wide
+	 * Editors can still override per-section via the Width field.
+	 */
+	defaultWidth?: "contained" | "full-bg" | "full";
 }
 
-const { node = {}, class: innerClass, background } = Astro.props;
-// Sections default to full width (full-bleed element + content). Editors can
-// switch a block back to "Normal" (contained) or "Full background" per-block.
-const width = node.width ?? "full-bg";
+const { node = {}, class: innerClass, background, defaultWidth = "full-bg" } = Astro.props;
+// Per-section editor choice wins; otherwise the block's declared default.
+const width = node.width ?? defaultWidth;
 const scale = FONT_SIZE_SCALE[node.fontSize ?? "md"] ?? 1;
 // Per-section content width: override the global --peak-wide for this block only.
 const cw = CONTENT_WIDTH_VALUES[node.contentWidth ?? "default"];

@@ -8,7 +8,7 @@ const { badge, text, buttonText, buttonUrl = "#", works, bg = "#141414" } = node
 const list = (Array.isArray(works) ? works : []).filter((w) => w?.image || w?.label);
 ---
 
-<PeakSection node={node}>
+<PeakSection node={node} defaultWidth="full">
 	<div class="ps15" style={`--bg:${bg}`}>
 		<aside class="ps15__left">
 			{badge && <span class="ps15__badge">{badge}</span>}

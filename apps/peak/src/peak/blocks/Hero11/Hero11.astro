@@ -9,7 +9,7 @@ const secNode = { ...node, width: (node as any).width || "full" };
 const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : "#";
 ---
 
-<PeakSection node={secNode} background="#fdf3ea">
+<PeakSection node={secNode} defaultWidth="full" background="#fdf3ea">
 	<div class="hi">
 		<div class="hi__left">
 			{title && <h1 class="hi__title">{title}</h1>}
