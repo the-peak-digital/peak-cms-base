@@ -32,10 +32,14 @@ const content = samples.map((s) => ({ _key: key(), _type: s.type, ...s.node }));
 log(`collected ${content.length} blocks`);
 
 // 2. Auth
+const COOKIE = process.env.PEAK_COOKIE; // e.g. "astro-session=..." from a password login
 let Hjson, Hauth;
 if (PAT) {
 	Hjson = { "Content-Type": "application/json", "X-EmDash-Request": "1", Authorization: `Bearer ${PAT}` };
 	Hauth = { "X-EmDash-Request": "1", Authorization: `Bearer ${PAT}` };
+} else if (COOKIE) {
+	Hjson = { "Content-Type": "application/json", "X-EmDash-Request": "1", Cookie: COOKIE };
+	Hauth = { "X-EmDash-Request": "1", Cookie: COOKIE };
 } else {
 	const auth = await fetch(`${BASE}/_emdash/api/setup/dev-bypass?token=1`);
 	const cookie = (auth.headers.get("set-cookie") || "").split(";")[0];
