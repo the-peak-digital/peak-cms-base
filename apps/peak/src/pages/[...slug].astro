@@ -41,14 +41,12 @@ const pick = (a: string, b: string, fallback: string) => d[a] || d[b] || fallbac
 			<PortableText value={content} components={{ type: blockComponents as any }} />
 		</BaseLayout>
 	) : (
-		<html lang="en">
-			<head>
-				<meta charset="utf-8" />
-				<title>Page not found</title>
-			</head>
-			<body>
+		<BaseLayout title="Page not found" header="default" footer="default" headerMenu="primary" footerMenu="footer">
+			<section style="max-width:680px;margin:6rem auto;padding:0 1.5rem;text-align:center">
 				<h1>Page not found</h1>
-			</body>
-		</html>
+				<p>The page you’re looking for doesn’t exist.</p>
+				<p><a href="/">Go home</a></p>
+			</section>
+		</BaseLayout>
 	)
 }
