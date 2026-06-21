@@ -38,6 +38,13 @@ async function handlePasswordLogin(request: Request, env: any): Promise<Response
 			.first()) as { value: string } | null;
 		if (!row?.value || !(await verifyPassword(password, JSON.parse(row.value)))) return bad();
 
+		// Clear this user's old login tokens first. auth_tokens has no index on
+		// `hash`, so the verify lookup scans the table — left to accumulate, it slows
+		// to a hang. Keeping ~one row per user keeps that scan trivial.
+		await env.DB.prepare("DELETE FROM auth_tokens WHERE user_id = ? AND type = 'magic_link'")
+			.bind(user.id)
+			.run();
+
 		// Mint a single-use magic-link token; EmDash's verify route turns it into a session.
 		const { token, hash } = generateTokenWithHash();
 		const now = new Date();
