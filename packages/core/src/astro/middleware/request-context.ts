@@ -122,29 +122,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
 				response.headers.set("Cache-Control", "private, no-store");
 			}
 
-			// Inject toolbar for authenticated editors
-			if (isEditor) {
-				const toolbarHtml = renderToolbar({
-					editMode,
-					isPreview: !!preview,
-				});
-				return injectToolbar(response, toolbarHtml);
-			}
-
-			return response;
+				// Visual-editing toolbar disabled for Peak (edits via admin; its script froze browsers).
+				return response;
 		});
 	}
 
-	// Editor without CMS signals — no ALS needed, but inject toolbar
-	if (isEditor) {
-		const response = await next();
-		const toolbarHtml = renderToolbar({
-			editMode: false,
-			isPreview: false,
-		});
-		return injectToolbar(response, toolbarHtml);
-	}
-
+	// Editor without CMS signals: toolbar injection disabled for Peak.
+	void renderToolbar;
+	void injectToolbar;
 	return next();
 });
 
