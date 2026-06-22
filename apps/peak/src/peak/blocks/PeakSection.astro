@@ -41,8 +41,10 @@ interface Props {
 }
 
 const { node = {}, class: innerClass, background, defaultWidth = "full-bg" } = Astro.props;
-// Per-section editor choice wins; otherwise the block's declared default.
-const width = node.width ?? defaultWidth;
+// Width is LOCKED to the block's design (defaultWidth set in code) — it is not an
+// editor field, so it can't be misconfigured. Any legacy node.width saved in old
+// content is intentionally ignored so existing pages snap to the correct width.
+const width = defaultWidth;
 const scale = FONT_SIZE_SCALE[node.fontSize ?? "md"] ?? 1;
 // Per-section content width: override the global --peak-wide for this block only.
 const cw = CONTENT_WIDTH_VALUES[node.contentWidth ?? "default"];

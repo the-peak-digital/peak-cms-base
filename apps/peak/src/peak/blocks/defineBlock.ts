@@ -108,24 +108,17 @@ export const CONTENT_WIDTH_VALUES: Record<string, string> = {
 	full: "100%",
 };
 
+// Width is a DESIGN decision baked into each block (its `defaultWidth` passed to
+// PeakSection), not a per-page content choice — so it's intentionally NOT an
+// editor field. One correct width per block, set in code, can't be misconfigured.
+// (WIDTH_OPTIONS / CONTENT_WIDTH_OPTIONS are kept exported for reference + the
+// dev preview toggle.) Only Text size is editor-adjustable.
 const COMMON_FIELDS: Record<string, FieldDef> = {
 	fontSize: {
 		type: "select",
 		label: "Text size",
 		options: FONT_SIZE_OPTIONS,
 		default: "md",
-	},
-	width: {
-		type: "select",
-		label: "Width",
-		options: WIDTH_OPTIONS,
-		default: "full-bg",
-	},
-	contentWidth: {
-		type: "select",
-		label: "Content width",
-		options: CONTENT_WIDTH_OPTIONS,
-		default: "default",
 	},
 };
 
