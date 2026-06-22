@@ -19,7 +19,7 @@
  *
  * Pass `background` for full-bg colored bands; it sits on the full-width element.
  */
-import { FONT_SIZE_SCALE, CONTENT_WIDTH_VALUES } from "./defineBlock";
+import { FONT_SIZE_SCALE } from "./defineBlock";
 
 interface Props {
 	node?: { width?: string; fontSize?: string; contentWidth?: string };
@@ -46,8 +46,8 @@ const { node = {}, class: innerClass, background, defaultWidth = "full-bg" } = A
 // content is intentionally ignored so existing pages snap to the correct width.
 const width = defaultWidth;
 const scale = FONT_SIZE_SCALE[node.fontSize ?? "md"] ?? 1;
-// Per-section content width: override the global --peak-wide for this block only.
-const cw = CONTENT_WIDTH_VALUES[node.contentWidth ?? "default"];
+// Content width is GLOBAL: every section aligns to --peak-wide (set once in
+// BaseLayout). No per-section override — content edges line up site-wide.
 
 // Background goes on whichever layer is the visible "band":
 //   contained -> the inner column (bg behind content only)
@@ -59,10 +59,7 @@ const outerStyle = [
 ]
 	.filter(Boolean)
 	.join(";");
-const innerStyle =
-	[!bgOnOuter && background ? `background:${background}` : "", cw ? `--peak-wide:${cw}` : ""]
-		.filter(Boolean)
-		.join(";") || undefined;
+const innerStyle = !bgOnOuter && background ? `background:${background}` : undefined;
 ---
 
 <div class:list={["peak-sec", `peak-sec--${width}`]} style={outerStyle}>
