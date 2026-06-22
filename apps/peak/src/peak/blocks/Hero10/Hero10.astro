@@ -59,7 +59,7 @@ const secNode = { ...node, width: (node as any).width || "bleed" };
 	@media (prefers-reduced-motion: reduce) {
 		.hsp__panel { animation: none; }
 	}
-	.hsp__panel-inner { flex: 1; padding: clamp(1.75rem, 3vw, 2.75rem) clamp(2.25rem, 3.5vw, 3.5rem); display: flex; flex-direction: column; }
+	.hsp__panel-inner { flex: 1; padding: clamp(2rem, 3.5vw, 3rem) clamp(2.75rem, 5vw, 4.5rem); display: flex; flex-direction: column; }
 	.hsp__logo { width: clamp(120px, 14vw, 170px); height: auto; margin: 0.5rem 0 auto; align-self: flex-start; }
 	.hsp__title {
 		font-family: Georgia, "Times New Roman", serif;
@@ -78,7 +78,7 @@ const secNode = { ...node, width: (node as any).width || "bleed" };
 	.hsp__chev { color: #2b3a52; font-size: 1.2rem; }
 	.hsp__band {
 		background: #4a8ba0; color: #fff; font-weight: 700;
-		padding: 1.1rem clamp(2.25rem, 3.5vw, 3.5rem); line-height: 1.4;
+		padding: 1.25rem clamp(2.75rem, 5vw, 4.5rem); line-height: 1.4;
 		font-size: calc(1rem * var(--peak-font-scale, 1));
 	}
 
