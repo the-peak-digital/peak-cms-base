@@ -1,0 +1,226 @@
+---
+import type { Hero28Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero28Props;
+const {
+	image,
+	imageAlt,
+	eyebrow,
+	title,
+	offer,
+	button1Text,
+	button1Url,
+	button2Text,
+	button2Url,
+	features = [],
+	socials = [],
+} = node;
+const secNode = { ...node, width: (node as any).width || "bleed" };
+const feat = Array.isArray(features) ? features.filter((f: any) => f?.title || f?.text) : [];
+const soc = Array.isArray(socials) ? socials.filter((s: any) => s?.icon || s?.url) : [];
+---
+
+<PeakSection node={secNode} defaultWidth="bleed">
+	<div class="hg">
+		{image && <img class="hg__bg" src={image} alt={imageAlt ?? ""} loading="eager" />}
+		<div class="hg__overlay"></div>
+
+		<div class="hg__inner">
+			<div class="hg__content">
+				{eyebrow && <p class="hg__eyebrow">{eyebrow}</p>}
+				{title && <h1 class="hg__title">{title}</h1>}
+				{
+					offer && (
+						<p class="hg__offer">
+							<span class="hg__gem" aria-hidden="true">
+								◆
+							</span>
+							{offer}
+						</p>
+					)
+				}
+				<div class="hg__cta">
+					{button1Text && <a class="hg__btn hg__btn--dark" href={button1Url}>{button1Text}</a>}
+					{button2Text && <a class="hg__btn hg__btn--light" href={button2Url}>{button2Text}</a>}
+				</div>
+			</div>
+
+			{
+				feat.length > 0 && (
+					<div class="hg__features">
+						{feat.map((f: any) => (
+							<div class="hg__feature">
+								{f.icon && (
+									<span class="hg__feature-icon" aria-hidden="true">
+										{f.icon}
+									</span>
+								)}
+								<div>
+									{f.title && <h3 class="hg__feature-title">{f.title}</h3>}
+									{f.text && <p class="hg__feature-text">{f.text}</p>}
+								</div>
+							</div>
+						))}
+					</div>
+				)
+			}
+		</div>
+
+		{
+			soc.length > 0 && (
+				<nav class="hg__social" aria-label="Social links">
+					{soc.map((s: any) => (
+						<a class="hg__social-link" href={s.url || "#"}>
+							{s.icon}
+						</a>
+					))}
+				</nav>
+			)
+		}
+	</div>
+</PeakSection>
+
+<style>
+	.hg {
+		position: relative;
+		min-height: clamp(620px, 92vh, 1000px);
+		display: flex;
+		overflow: hidden;
+		color: #fff;
+	}
+	.hg__bg,
+	.hg__overlay {
+		position: absolute;
+		inset: 0;
+	}
+	.hg__bg {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+	.hg__overlay {
+		background: linear-gradient(90deg, rgba(0, 0, 0, 0.58) 0%, rgba(0, 0, 0, 0.38) 45%, rgba(0, 0, 0, 0.12) 100%);
+	}
+	.hg__inner {
+		position: relative;
+		width: 100%;
+		max-width: var(--peak-wide, 1180px);
+		margin-inline: auto;
+		padding: clamp(3rem, 6vw, 5.5rem) var(--peak-gutter, 1.5rem);
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		gap: clamp(2.5rem, 5vw, 4.5rem);
+	}
+	.hg__content {
+		max-width: 62ch;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 1.5rem;
+	}
+	.hg__eyebrow {
+		margin: 0;
+		text-transform: uppercase;
+		letter-spacing: 0.18em;
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: #e6e6e6;
+	}
+	.hg__title {
+		margin: 0;
+		max-width: 16ch;
+		font-size: calc(clamp(2.5rem, 5.5vw, 4.5rem) * var(--peak-font-scale, 1));
+		font-weight: 800;
+		line-height: 1.04;
+	}
+	.hg__offer {
+		margin: 0;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.6rem;
+		font-size: calc(1.25rem * var(--peak-font-scale, 1));
+	}
+	.hg__gem {
+		color: #f5c518;
+	}
+	.hg__cta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem;
+		margin-top: 0.5rem;
+	}
+	.hg__btn {
+		display: inline-flex;
+		align-items: center;
+		padding: 1rem 1.75rem;
+		border-radius: 4px;
+		font-weight: 700;
+		font-size: 1rem;
+		text-decoration: none;
+	}
+	.hg__btn--dark {
+		background: #111;
+		color: #fff;
+	}
+	.hg__btn--light {
+		background: #fff;
+		color: #111;
+	}
+	.hg__features {
+		display: flex;
+		flex-wrap: wrap;
+		gap: clamp(2rem, 5vw, 4rem);
+	}
+	.hg__feature {
+		display: flex;
+		gap: 1rem;
+		max-width: 360px;
+	}
+	.hg__feature-icon {
+		font-size: 1.6rem;
+		flex: 0 0 auto;
+		line-height: 1.2;
+	}
+	.hg__feature-title {
+		margin: 0 0 0.3rem;
+		font-size: 1.2rem;
+		font-weight: 700;
+	}
+	.hg__feature-text {
+		margin: 0;
+		font-size: 0.95rem;
+		color: #dcdcdc;
+		line-height: 1.45;
+	}
+	.hg__social {
+		position: absolute;
+		right: clamp(1rem, 2vw, 2rem);
+		top: 50%;
+		transform: translateY(-50%);
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+	.hg__social-link {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		background: #111;
+		color: #fff;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		text-decoration: none;
+		font-size: 1.05rem;
+	}
+	@media (max-width: 820px) {
+		.hg__social {
+			display: none;
+		}
+		.hg__title {
+			font-size: 2.25rem;
+		}
+	}
+</style>
