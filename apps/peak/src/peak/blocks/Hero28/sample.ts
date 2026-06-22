@@ -12,14 +12,14 @@ export const sample: Hero28Props = {
 	button2Text: "View Our Stone Collection",
 	button2Url: "/collection",
 	features: [
-		{ icon: "🖼", title: "Kitchen Visualizer", text: "See how marble, granite, or quartz looks in your kitchen." },
-		{ icon: "🏛", title: "Visit Our Showroom", text: "Explore premium stone slabs in person at our Virginia showroom." },
+		{ icon: "visualizer", title: "Kitchen Visualizer", text: "See how marble, granite, or quartz looks in your kitchen." },
+		{ icon: "showroom", title: "Visit Our Showroom", text: "Explore premium stone slabs in person at our Virginia showroom." },
 	],
 	socials: [
-		{ icon: "📘", url: "#" },
-		{ icon: "📷", url: "#" },
-		{ icon: "📞", url: "#" },
-		{ icon: "📍", url: "#" },
-		{ icon: "✉️", url: "#" },
+		{ icon: "facebook", url: "#" },
+		{ icon: "instagram", url: "#" },
+		{ icon: "phone", url: "#" },
+		{ icon: "map", url: "#" },
+		{ icon: "mail", url: "#" },
 	],
 };
