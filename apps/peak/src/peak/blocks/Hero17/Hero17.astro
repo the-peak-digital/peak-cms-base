@@ -5,10 +5,10 @@ import PeakSection from "../PeakSection.astro";
 const node = (Astro.props.node ?? {}) as Hero17Props;
 const { badge, title, body, buttonText, buttonUrl, image, imageAlt, rating = 5, quote } = node;
 const stars = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
-const secNode = { ...node, width: (node as any).width || "full" };
+const secNode = { ...node, width: (node as any).width || "bleed" };
 ---
 
-<PeakSection node={secNode} defaultWidth="full">
+<PeakSection node={secNode} defaultWidth="bleed">
 	<div class="rf">
 		<div class="rf__left">
 			<div class="rf__inner">
