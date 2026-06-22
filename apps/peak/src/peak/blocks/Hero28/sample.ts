@@ -2,7 +2,7 @@ import type { Hero28Props } from "./schema";
 
 /** Demo content. Swap the image for your own; set real social URLs. */
 export const sample: Hero28Props = {
-	image: "https://images.unsplash.com/photo-1556909212-d5b604d0c90d?w=1800&q=70&auto=format&fit=crop",
+	image: "https://images.unsplash.com/photo-1556912173-3bb406ef7e77?w=1800&q=70&auto=format&fit=crop",
 	imageAlt: "Modern kitchen with stone countertops",
 	eyebrow: "PREMIUM SELECTION OF COUNTERTOPS",
 	title: "Virginia Beach's Premier Countertop Destination",
