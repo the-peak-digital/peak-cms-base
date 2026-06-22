@@ -108,12 +108,13 @@ const soc = Array.isArray(socials) ? socials.filter((s: any) => s?.icon || s?.ur
 		max-width: var(--peak-wide, 1180px);
 		margin-inline: auto;
 		padding: clamp(3rem, 6vw, 5.5rem) var(--peak-gutter, 1.5rem);
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		gap: clamp(2.5rem, 5vw, 4.5rem);
+		/* Content vertically centered; feature blurbs pinned to the bottom row. */
+		display: grid;
+		grid-template-rows: 1fr auto;
+		gap: clamp(2rem, 4vw, 3rem);
 	}
 	.hg__content {
+		align-self: center;
 		max-width: 62ch;
 		display: flex;
 		flex-direction: column;
@@ -169,9 +170,13 @@ const soc = Array.isArray(socials) ? socials.filter((s: any) => s?.icon || s?.ur
 		color: #111;
 	}
 	.hg__features {
+		align-self: end;
+		justify-content: flex-end;
 		display: flex;
 		flex-wrap: wrap;
 		gap: clamp(2rem, 5vw, 4rem);
+		/* keep clear of the right social rail */
+		padding-right: clamp(0px, 4vw, 4rem);
 	}
 	.hg__feature {
 		display: flex;
