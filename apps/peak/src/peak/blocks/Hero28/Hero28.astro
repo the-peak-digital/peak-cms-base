@@ -199,11 +199,12 @@ const svg = (name: string) =>
 	}
 	.hg__features {
 		align-self: end;
-		justify-content: flex-end;
+		justify-self: end; /* group both blurbs together on the right of the content column */
 		display: flex;
 		flex-wrap: wrap;
-		gap: clamp(2rem, 5vw, 4rem);
-		padding-right: clamp(0px, 4vw, 4rem);
+		gap: clamp(2rem, 4vw, 3.5rem);
+		max-width: 100%;
+		padding-right: clamp(0px, 3vw, 3rem);
 	}
 	.hg__feature {
 		display: flex;
