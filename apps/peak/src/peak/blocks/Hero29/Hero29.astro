@@ -1,0 +1,160 @@
+---
+import type { Hero29Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero29Props;
+const { eyebrow, title, subtitle, phone, avatars = [], stars = 5, reviewsText, images = [], accent = "#e8794a" } = node;
+const av = Array.isArray(avatars) ? avatars.filter((a: any) => a?.url) : [];
+const imgs = Array.isArray(images) ? images.filter((i: any) => i?.url) : [];
+const full = Math.max(0, Math.min(5, Math.round(Number(stars) || 0)));
+const telHref = phone ? `tel:${String(phone).replace(/[^0-9+]/g, "")}` : "#";
+---
+
+<PeakSection node={node} defaultWidth="full-bg" background="#f4f6f4">
+	<div class="hr">
+		<div class="hr__head">
+			{eyebrow && <p class="hr__eyebrow">{eyebrow}</p>}
+			{title && <h1 class="hr__title">{title}</h1>}
+			{
+				subtitle && (
+					<p class="hr__subtitle">
+						{subtitle}
+						{phone && (
+							<>
+								{" "}
+								<a class="hr__phone" href={telHref} style={`color:${accent}`}>
+									{phone}
+								</a>
+							</>
+						)}
+					</p>
+				)
+			}
+			{
+				(av.length > 0 || full > 0 || reviewsText) && (
+					<div class="hr__proof">
+						{av.length > 0 && (
+							<div class="hr__avatars">
+								{av.map((a: any) => (
+									<img class="hr__avatar" src={a.url} alt={a.alt || ""} loading="lazy" />
+								))}
+							</div>
+						)}
+						<div class="hr__rating">
+							{full > 0 && (
+								<span class="hr__stars" aria-label={`${full} out of 5`}>
+									{"★".repeat(full)}
+								</span>
+							)}
+							{reviewsText && <span class="hr__reviews">{reviewsText}</span>}
+						</div>
+					</div>
+				)
+			}
+		</div>
+
+		{
+			imgs.length > 0 && (
+				<div class="hr__gallery">
+					{imgs.slice(0, 3).map((i: any) => (
+						<img class="hr__img" src={i.url} alt={i.alt || ""} loading="lazy" />
+					))}
+				</div>
+			)
+		}
+	</div>
+</PeakSection>
+
+<style>
+	.hr {
+		text-align: center;
+		padding-block: clamp(2.5rem, 5vw, 4rem);
+	}
+	.hr__head {
+		max-width: 760px;
+		margin-inline: auto;
+	}
+	.hr__eyebrow {
+		margin: 0 0 1rem;
+		font-weight: 600;
+		color: #1f3a2e;
+	}
+	.hr__title {
+		margin: 0;
+		font-size: calc(clamp(2.25rem, 5vw, 3.75rem) * var(--peak-font-scale, 1));
+		font-weight: 800;
+		line-height: 1.1;
+		color: #16382a;
+	}
+	.hr__subtitle {
+		margin: 1.5rem auto 0;
+		max-width: 620px;
+		font-size: calc(1.1rem * var(--peak-font-scale, 1));
+		line-height: 1.6;
+		color: #3a4a44;
+		font-weight: 600;
+	}
+	.hr__phone {
+		font-weight: 700;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+	.hr__proof {
+		display: inline-flex;
+		align-items: center;
+		gap: 1rem;
+		margin-top: 2rem;
+	}
+	.hr__avatars {
+		display: flex;
+	}
+	.hr__avatar {
+		width: 46px;
+		height: 46px;
+		border-radius: 50%;
+		border: 3px solid #fff;
+		object-fit: cover;
+		margin-left: -14px;
+	}
+	.hr__avatar:first-child {
+		margin-left: 0;
+	}
+	.hr__rating {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		line-height: 1.25;
+	}
+	.hr__stars {
+		color: #1db954;
+		letter-spacing: 2px;
+		font-size: 1.15rem;
+	}
+	.hr__reviews {
+		font-weight: 700;
+		color: #16382a;
+		font-size: 0.95rem;
+	}
+	.hr__gallery {
+		margin-top: clamp(2rem, 4vw, 3.5rem);
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: clamp(0.75rem, 1.5vw, 1.25rem);
+		background: #fff;
+		padding: clamp(0.75rem, 1.5vw, 1.25rem);
+		border-radius: 18px;
+		box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.22);
+	}
+	.hr__img {
+		width: 100%;
+		aspect-ratio: 4 / 5;
+		object-fit: cover;
+		border-radius: 12px;
+		display: block;
+	}
+	@media (max-width: 720px) {
+		.hr__gallery {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
