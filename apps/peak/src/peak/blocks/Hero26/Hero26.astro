@@ -1,0 +1,213 @@
+---
+import type { Hero26Props } from "./schema";
+import PeakSection from "../PeakSection.astro";
+
+const node = (Astro.props.node ?? {}) as Hero26Props;
+const { slides = [], accent = "#c2703d" } = node;
+const list = slides.length ? slides : [{}];
+---
+
+<PeakSection node={node} defaultWidth="contained">
+	<div class="hs" data-hs style={`--hs-accent:${accent}`}>
+		<div class="hs__viewport">
+			{
+				list.map((s: any, idx: number) => (
+					<article class="hs__slide" data-hs-slide class:list={{ "is-active": idx === 0 }}>
+						{s.image && <img class="hs__img" src={s.image} alt="" />}
+						<div class="hs__content">
+							{s.title && <h2 class="hs__title">{s.title}</h2>}
+							{s.subtitle && <p class="hs__subtitle">{s.subtitle}</p>}
+						</div>
+						{s.buttonText && (
+							<a class="hs__btn" href={s.buttonUrl}>
+								<span>{s.buttonText}</span>
+								<span class="hs__btn-arrow" aria-hidden="true">→</span>
+							</a>
+						)}
+					</article>
+				))
+			}
+		</div>
+
+		{
+			list.length > 1 && (
+				<>
+					<button class="hs__nav hs__nav--prev" data-hs-prev type="button" aria-label="Previous slide">
+						‹
+					</button>
+					<button class="hs__nav hs__nav--next" data-hs-next type="button" aria-label="Next slide">
+						›
+					</button>
+					<div class="hs__dots">
+						{list.map((_: any, idx: number) => (
+							<button
+								class="hs__dot"
+								data-hs-dot
+								type="button"
+								class:list={{ "is-active": idx === 0 }}
+								aria-label={`Go to slide ${idx + 1}`}
+							/>
+						))}
+					</div>
+				</>
+			)
+		}
+	</div>
+</PeakSection>
+
+<script is:inline>
+	(function () {
+		function init(root) {
+			if (root.dataset.hsReady) return;
+			root.dataset.hsReady = "1";
+			var slides = root.querySelectorAll("[data-hs-slide]");
+			var dots = root.querySelectorAll("[data-hs-dot]");
+			if (slides.length < 2) return;
+			var i = 0,
+				timer;
+			function show(n) {
+				i = (n + slides.length) % slides.length;
+				for (var k = 0; k < slides.length; k++) slides[k].classList.toggle("is-active", k === i);
+				for (var k = 0; k < dots.length; k++) dots[k].classList.toggle("is-active", k === i);
+			}
+			function reset() {
+				clearInterval(timer);
+				timer = setInterval(function () {
+					show(i + 1);
+				}, 6000);
+			}
+			var prev = root.querySelector("[data-hs-prev]");
+			var next = root.querySelector("[data-hs-next]");
+			if (prev) prev.addEventListener("click", function () { show(i - 1); reset(); });
+			if (next) next.addEventListener("click", function () { show(i + 1); reset(); });
+			for (var k = 0; k < dots.length; k++)
+				(function (k) {
+					dots[k].addEventListener("click", function () { show(k); reset(); });
+				})(k);
+			root.addEventListener("mouseenter", function () { clearInterval(timer); });
+			root.addEventListener("mouseleave", reset);
+			reset();
+		}
+		function boot() {
+			document.querySelectorAll("[data-hs]").forEach(init);
+		}
+		if (document.readyState !== "loading") boot();
+		else document.addEventListener("DOMContentLoaded", boot);
+	})();
+</script>
+
+<style>
+	.hs {
+		position: relative;
+		background: #0a0a0a;
+		color: #fff;
+		overflow: hidden;
+	}
+	.hs__viewport {
+		position: relative;
+		min-height: clamp(480px, 70vh, 720px);
+	}
+	.hs__slide {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		padding: clamp(3rem, 6vw, 5rem) clamp(2rem, 8vw, 7rem);
+		opacity: 0;
+		visibility: hidden;
+		transition: opacity 0.6s ease;
+	}
+	.hs__slide.is-active {
+		opacity: 1;
+		visibility: visible;
+	}
+	.hs__img {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		opacity: 0.4;
+	}
+	.hs__content {
+		position: relative;
+		max-width: 50ch;
+	}
+	.hs__title {
+		margin: 0;
+		font-size: calc(clamp(2rem, 4.5vw, 3.5rem) * var(--peak-font-scale, 1));
+		font-weight: 400;
+		line-height: 1.12;
+		letter-spacing: 0.02em;
+		text-transform: uppercase;
+	}
+	.hs__subtitle {
+		margin: 1.5rem 0 0;
+		font-size: calc(clamp(1.05rem, 1.8vw, 1.35rem) * var(--peak-font-scale, 1));
+		color: #d9d9d9;
+	}
+	.hs__btn {
+		position: absolute;
+		left: clamp(1rem, 4vw, 3rem);
+		bottom: clamp(1rem, 3vw, 2.5rem);
+		display: inline-flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 2.5rem;
+		min-width: 230px;
+		padding: 1rem 1.25rem;
+		background: #fff;
+		color: #111;
+		border: 2px solid var(--hs-accent, #c2703d);
+		text-decoration: none;
+		font-weight: 600;
+		font-size: 0.8rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+	.hs__nav {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		background: none;
+		border: 0;
+		color: #fff;
+		font-size: 2.5rem;
+		line-height: 1;
+		padding: 0 1rem;
+		cursor: pointer;
+		opacity: 0.8;
+	}
+	.hs__nav:hover {
+		opacity: 1;
+	}
+	.hs__nav--prev {
+		left: 0.25rem;
+	}
+	.hs__nav--next {
+		right: 0.25rem;
+	}
+	.hs__dots {
+		position: absolute;
+		bottom: 1.25rem;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		gap: 0.6rem;
+	}
+	.hs__dot {
+		width: 9px;
+		height: 9px;
+		border-radius: 50%;
+		border: 0;
+		padding: 0;
+		background: rgba(255, 255, 255, 0.4);
+		cursor: pointer;
+	}
+	.hs__dot.is-active {
+		background: var(--hs-accent, #c2703d);
+	}
+</style>
