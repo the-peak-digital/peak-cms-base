@@ -65,28 +65,28 @@ const svg = (name: string) =>
 					{button2Text && <a class="hg__btn hg__btn--light" href={button2Url}>{button2Text}</a>}
 				</div>
 			</div>
-
-			{
-				feat.length > 0 && (
-					<div class="hg__features">
-						{feat.map((f: any) => (
-							<div class="hg__feature">
-								{f.icon &&
-									(svg(f.icon) ? (
-										<span class="hg__feature-icon" set:html={svg(f.icon)} />
-									) : (
-										<span class="hg__feature-icon">{f.icon}</span>
-									))}
-								<div>
-									{f.title && <h3 class="hg__feature-title">{f.title}</h3>}
-									{f.text && <p class="hg__feature-text">{f.text}</p>}
-								</div>
-							</div>
-						))}
-					</div>
-				)
-			}
 		</div>
+
+		{
+			feat.length > 0 && (
+				<div class="hg__features">
+					{feat.map((f: any) => (
+						<div class="hg__feature">
+							{f.icon &&
+								(svg(f.icon) ? (
+									<span class="hg__feature-icon" set:html={svg(f.icon)} />
+								) : (
+									<span class="hg__feature-icon">{f.icon}</span>
+								))}
+							<div>
+								{f.title && <h3 class="hg__feature-title">{f.title}</h3>}
+								{f.text && <p class="hg__feature-text">{f.text}</p>}
+							</div>
+						</div>
+					))}
+				</div>
+			)
+		}
 
 		{
 			soc.length > 0 && (
@@ -136,12 +136,11 @@ const svg = (name: string) =>
 		max-width: var(--peak-wide, 1180px);
 		margin-inline: auto;
 		padding: clamp(3rem, 6vw, 5.5rem) var(--peak-gutter, 1.5rem);
-		display: grid;
-		grid-template-rows: 1fr auto;
-		gap: clamp(2rem, 4vw, 3rem);
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
 	}
 	.hg__content {
-		align-self: center;
 		max-width: 62ch;
 		display: flex;
 		flex-direction: column;
@@ -197,19 +196,19 @@ const svg = (name: string) =>
 		background: #fff;
 		color: #111;
 	}
+	/* Feature blurbs pinned to the bottom-right of the full image, clear of the
+	   social rail. */
 	.hg__features {
-		align-self: end;
-		justify-self: end; /* group both blurbs together on the right of the content column */
+		position: absolute;
+		bottom: clamp(1.5rem, 3.5vw, 3rem);
+		right: clamp(4.5rem, 8vw, 8rem);
 		display: flex;
-		flex-wrap: wrap;
 		gap: clamp(2rem, 4vw, 3.5rem);
-		max-width: 100%;
-		padding-right: clamp(0px, 3vw, 3rem);
+		max-width: min(640px, 55vw);
 	}
 	.hg__feature {
 		display: flex;
 		gap: 0.9rem;
-		max-width: 340px;
 		align-items: flex-start;
 	}
 	.hg__feature-icon {
@@ -258,7 +257,7 @@ const svg = (name: string) =>
 		width: 18px;
 		height: 18px;
 	}
-	@media (max-width: 820px) {
+	@media (max-width: 900px) {
 		.hg__social {
 			display: none;
 		}
@@ -266,7 +265,11 @@ const svg = (name: string) =>
 			font-size: 2.25rem;
 		}
 		.hg__features {
-			justify-content: flex-start;
+			right: auto;
+			left: var(--peak-gutter, 1.5rem);
+			bottom: var(--peak-gutter, 1.5rem);
+			max-width: none;
+			flex-wrap: wrap;
 		}
 	}
 </style>
