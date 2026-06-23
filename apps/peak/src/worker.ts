@@ -64,11 +64,77 @@ async function handlePasswordLogin(request: Request, env: any): Promise<Response
 	}
 }
 
+/**
+ * Public lead-capture for landing-page forms (e.g. Hero27). Intercepted in the
+ * worker for the same reason as login — a POST to an Astro route is shadowed by
+ * the root catch-all. Stores the submission in a `peak_leads` D1 table and
+ * redirects back to the originating page with ?lead=ok so the form can show a
+ * thank-you. No auth/CSRF: it's a public form. Values are length-capped and a
+ * contact (email or phone) is required to keep junk down.
+ */
+async function handleLead(request: Request, env: any): Promise<Response> {
+	const origin = new URL(request.url).origin;
+	const referer = request.headers.get("referer") || `${origin}/`;
+	const back = (ok: boolean) => {
+		try {
+			const u = new URL(referer);
+			u.searchParams.set("lead", ok ? "ok" : "err");
+			u.hash = "lead";
+			return Response.redirect(u.toString(), 303);
+		} catch {
+			return Response.redirect(`${origin}/?lead=${ok ? "ok" : "err"}`, 303);
+		}
+	};
+	try {
+		if (!env?.DB) return back(false);
+		const form = await request.formData();
+		const v = (k: string) =>
+			String(form.get(k) ?? "")
+				.trim()
+				.slice(0, 500);
+		const lead = {
+			zip: v("zip"),
+			first_name: v("first_name"),
+			last_name: v("last_name"),
+			email: v("email"),
+			phone: v("phone"),
+			consent: form.get("consent") ? 1 : 0,
+			source: v("source"),
+		};
+		if (!lead.email && !lead.phone) return back(false);
+
+		await env.DB.prepare(
+			"CREATE TABLE IF NOT EXISTS peak_leads (id TEXT PRIMARY KEY, created_at TEXT, source TEXT, zip TEXT, first_name TEXT, last_name TEXT, email TEXT, phone TEXT, consent INTEGER)",
+		).run();
+		await env.DB.prepare(
+			"INSERT INTO peak_leads (id, created_at, source, zip, first_name, last_name, email, phone, consent) VALUES (?,?,?,?,?,?,?,?,?)",
+		)
+			.bind(
+				crypto.randomUUID(),
+				new Date().toISOString(),
+				lead.source,
+				lead.zip,
+				lead.first_name,
+				lead.last_name,
+				lead.email,
+				lead.phone,
+				lead.consent,
+			)
+			.run();
+		return back(true);
+	} catch {
+		return back(false);
+	}
+}
+
 export default {
 	async fetch(request: Request, env: any, ctx: any): Promise<Response> {
 		const url = new URL(request.url);
 		if (request.method === "POST" && url.pathname === "/api/login") {
 			return handlePasswordLogin(request, env);
+		}
+		if (request.method === "POST" && url.pathname === "/api/lead") {
+			return handleLead(request, env);
 		}
 		return (emdashWorker as any).fetch(request, env, ctx);
 	},

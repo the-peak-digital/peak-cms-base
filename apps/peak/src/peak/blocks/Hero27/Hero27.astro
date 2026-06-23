@@ -13,6 +13,11 @@ const {
 	consentText,
 	formAction,
 } = node;
+
+// Defaults to Peak's built-in lead endpoint (worker → peak_leads D1 table).
+const action = formAction || "/api/lead";
+const source = Astro.url.pathname;
+const submitted = Astro.url.searchParams.get("lead") === "ok";
 ---
 
 <PeakSection node={node} defaultWidth="bleed">
@@ -27,32 +32,46 @@ const {
 		<div class="hf__body">
 			{image && <img class="hf__img" src={image} alt={imageAlt ?? ""} loading="eager" />}
 
-			<form class="hf__form" method="POST" action={formAction || "#"}>
-				{formHeading && <h2 class="hf__form-heading">{formHeading}</h2>}
+			{
+				submitted ? (
+					<div class="hf__form hf__thanks" id="lead">
+						<h2 class="hf__form-heading">Thank you! ✓</h2>
+						<p class="hf__thanks-text">
+							We've received your request — a member of our team will reach out to you shortly.
+						</p>
+					</div>
+				) : (
+					<form class="hf__form" id="lead" method="POST" action={action}>
+						{formHeading && <h2 class="hf__form-heading">{formHeading}</h2>}
+						<input type="hidden" name="source" value={source} />
 
-				<div class="hf__row">
-					<span class="hf__flag" aria-hidden="true">🇺🇸 US</span>
-					<input class="hf__input hf__input--zip" name="zip" type="text" placeholder="ZIP Code" />
-				</div>
-				<input class="hf__input" name="first_name" type="text" placeholder="First Name" />
-				<input class="hf__input" name="last_name" type="text" placeholder="Last Name" />
-				<input class="hf__input" name="email" type="email" placeholder="Email" />
-				<input class="hf__input" name="phone" type="tel" placeholder="Phone (mobile preferred)" />
+						<div class="hf__row">
+							<span class="hf__flag" aria-hidden="true">
+								🇺🇸 US
+							</span>
+							<input class="hf__input hf__input--zip" name="zip" type="text" placeholder="ZIP Code" />
+						</div>
+						<input class="hf__input" name="first_name" type="text" placeholder="First Name" />
+						<input class="hf__input" name="last_name" type="text" placeholder="Last Name" />
+						<input class="hf__input" name="email" type="email" placeholder="Email" />
+						<input class="hf__input" name="phone" type="tel" placeholder="Phone (mobile preferred)" />
 
-				{
-					consentText && (
-						<label class="hf__consent">
-							<input type="checkbox" name="consent" value="yes" />
-							<span>{consentText}</span>
-						</label>
-					)
-				}
+						{consentText && (
+							<label class="hf__consent">
+								<input type="checkbox" name="consent" value="yes" />
+								<span>{consentText}</span>
+							</label>
+						)}
 
-				<button class="hf__submit" type="submit">
-					<span>{buttonText}</span>
-					<span class="hf__submit-arrow" aria-hidden="true">→</span>
-				</button>
-			</form>
+						<button class="hf__submit" type="submit">
+							<span>{buttonText}</span>
+							<span class="hf__submit-arrow" aria-hidden="true">
+								→
+							</span>
+						</button>
+					</form>
+				)
+			}
 		</div>
 	</div>
 </PeakSection>
@@ -162,6 +181,17 @@ const {
 		font-size: 1rem;
 		font-weight: 600;
 		cursor: pointer;
+	}
+
+	.hf__thanks {
+		justify-content: center;
+		gap: 0.8rem;
+	}
+	.hf__thanks-text {
+		margin: 0;
+		font-size: 1.05rem;
+		line-height: 1.5;
+		color: #444;
 	}
 
 	@media (max-width: 900px) {

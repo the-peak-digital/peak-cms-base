@@ -4,7 +4,7 @@ import type { Hero27Props } from "./schema";
 export const sample: Hero27Props = {
 	title: "Custom closets & storage solutions",
 	titleAccent: "for every room",
-	image: "https://picsum.photos/seed/hero27-closet/1800/1000",
+	image: "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1800&q=70&auto=format&fit=crop",
 	imageAlt: "Custom walk-in closet",
 	formHeading: "It all starts with a free design consultation",
 	buttonText: "Submit",
