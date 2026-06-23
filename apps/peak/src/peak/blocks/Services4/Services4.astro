@@ -13,8 +13,8 @@ const leftItems = indexed.filter((s) => s.i % 2 === 0);
 const rightItems = indexed.filter((s) => s.i % 2 === 1);
 ---
 
-<PeakSection node={node}>
-	<div class="ps4" style={`--accent:${accent}; --bg:${bg}`} data-services-count={list.length}>
+<PeakSection node={node} defaultWidth="full-bg" background={bg}>
+	<div class="ps4" style={`--accent:${accent}`} data-services-count={list.length}>
 		<header class="ps4__head">
 			{title && <h2 class="ps4__title">{title}</h2>}
 			{intro && <p class="ps4__intro">{intro}</p>}
@@ -51,11 +51,11 @@ const rightItems = indexed.filter((s) => s.i % 2 === 1);
 </PeakSection>
 
 <style>
+	/* Full-width band (background on the PeakSection outer); content stays at the
+	   global --peak-wide column. Vertical padding gives the band height. */
 	.ps4 {
-		background: var(--bg);
 		color: #fff;
-		border-radius: 6px;
-		padding: clamp(2rem, 4vw, 3.5rem) clamp(1.5rem, 3vw, 3rem) clamp(3rem, 5vw, 4.5rem);
+		padding-block: clamp(2.5rem, 5vw, 4.5rem);
 	}
 
 	.ps4__head {
