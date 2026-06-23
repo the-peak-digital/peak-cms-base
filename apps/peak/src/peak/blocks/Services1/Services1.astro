@@ -24,8 +24,8 @@ const wrench =
 	'<path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M14.5 6a3.5 3.5 0 0 0-4.6 4.3l-5.1 5.1a1.5 1.5 0 0 0 2.1 2.1l5.1-5.1A3.5 3.5 0 0 0 17.5 9l-2 2-2-2 2-2a3.5 3.5 0 0 0-1-1z"/>';
 ---
 
-<PeakSection node={node}>
-	<div class="psv" style={`--bg:${bg}; --accent:${accent}`}>
+<PeakSection node={node} defaultWidth="full-bg" background={bg}>
+	<div class="psv" style={`--accent:${accent}`}>
 		<div class="psv__head">
 			<div class="psv__lead">
 				{badge && (
@@ -66,11 +66,12 @@ const wrench =
 </PeakSection>
 
 <style>
+	/* Full-width beige band (background lives on the PeakSection outer); content
+	   stays aligned to the global --peak-wide column. Vertical padding gives the
+	   band height — horizontal spacing comes from the section gutter. */
 	.psv {
-		background: var(--bg);
 		color: #1c1b19;
-		border-radius: clamp(18px, 2.5vw, 34px);
-		padding: clamp(1.75rem, 4vw, 3.5rem);
+		padding-block: clamp(2.5rem, 5vw, 4.5rem);
 	}
 
 	/* Header: serif headline left, copy + CTA right. */
